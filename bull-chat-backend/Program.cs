@@ -1,4 +1,5 @@
 
+using bull_chat_backend.Repository;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using System;
@@ -21,14 +22,14 @@ namespace bull_chat_backend
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
-            //builder.Services.AddSingleton<ChatDbContext>();
 
             builder.Services.AddSignalR();
 
+            builder.Services.AddTransient<IUserRepository, UserRepository>();
 
             var app = builder.Build();
-            app.Map("/bull",(ChatDbContext dbContext) => {
-                return dbContext.Message.Count();
+            app.Map("/bull",async (IUserRepository userRepository, CancellationToken token) => {
+                return await userRepository.CountAsync(token);
             });
 
             // Configure the HTTP request pipeline.
