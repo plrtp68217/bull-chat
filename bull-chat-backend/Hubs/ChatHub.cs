@@ -1,24 +1,61 @@
 ﻿using bull_chat_backend.Models;
+using bull_chat_backend.Repository.RepositoryInterfaces;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 namespace bull_chat_backend.Hubs
 {
-    internal interface IChatHub 
+    public interface IChatHub 
     {
-        Task SendMessage(string user, string message);
-        Task ReceiveMessage(Message message);
+        Task SendMessage(string user, string text);
+        Task ReceiveMessage(MessageDto message);
         Task NotifyTyping(string user);
         Task GetConnectedUsers();
     }
 
-    internal class ChatHub(ChatDbContext dbContext) : Hub<IChatHub>
+    public class MessageDto
     {
-        private readonly ChatDbContext _dbContext = dbContext;
+        public int Id { get; set; }
+        public int UserId { get; set; }
+        public string UserName { get; set; }
+        public string Text { get; set; }
+        public DateTime Date { get; set; }
+
+        public static MessageDto FromEntity(Message message)
+        {
+            return new MessageDto
+            {
+                Id = message.Id,
+                UserId = message.User.Id,
+                UserName = message.User.Name,
+                Text = message.Content.Text,
+                Date = message.Date
+            };
+        }
+    }
+
+    public class ChatHub : Hub<IChatHub>
+    {
+        private readonly IUserRepository _userRepository;
+        private readonly IMessageRepository _messageRepository;
+        private readonly IContentRepository _contentRepository;
+
+        public ChatHub(
+            IUserRepository userRepository,
+            IMessageRepository messageRepository,
+            IContentRepository contentRepository)
+        {
+            _userRepository = userRepository;
+            _messageRepository = messageRepository;
+            _contentRepository = contentRepository;
+        }
 
         public async Task SendMessage(int userId, string text)
         {
-            var user = await _dbContext.User.FirstOrDefaultAsync(u => u.Id == userId);
+            var cts = new CancellationTokenSource();
+            CancellationToken token = cts.Token;
+
+            User user = await _userRepository.GetByIdAsync(userId, token);
 
             if (user == null) throw new HubException("User not found");
 
@@ -27,18 +64,12 @@ namespace bull_chat_backend.Hubs
                 UserId = userId,
                 Date = DateTime.UtcNow,
                 User = user,
-                Content = new Content {Text = text},
+                Content = new Content { Text = text },
             };
 
-            _dbContext.Message.Add(message);
-            await _dbContext.SaveChangesAsync();
+            await _messageRepository.AddAsync(message, token);
 
-            if (message == null)
-            {
-                throw new HubException("Failed to save message");
-            }
-
-            await Clients.All.ReceiveMessage(message);
+            await Clients.All.ReceiveMessage(MessageDto.FromEntity(message));
         }
     }
 }
