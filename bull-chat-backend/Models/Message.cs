@@ -9,5 +9,15 @@
         public int ContentId { get; set; }
         public User? User { get; set; }
         public Content? Content { get; set; }
+
+        public static Message Empty => new()
+        {
+            Id = int.MinValue,
+            Date = new DateTime().Date,
+            UserId = int.MinValue,
+            ContentId = int.MinValue,
+            User = User.Empty,
+            Content = Content.Empty,
+        };
     }
 }
