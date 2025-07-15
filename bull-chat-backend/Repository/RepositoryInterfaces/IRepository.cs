@@ -1,4 +1,4 @@
-﻿namespace bull_chat_backend.Repository
+﻿namespace bull_chat_backend.Repository.RepositoryInterfaces
 {
     public interface IRepository<T> where T : class
     {

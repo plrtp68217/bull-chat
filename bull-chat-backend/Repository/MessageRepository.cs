@@ -1,0 +1,69 @@
+﻿using bull_chat_backend.Models;
+using bull_chat_backend.Repository.RepositoryInterfaces;
+using Microsoft.EntityFrameworkCore;
+
+namespace bull_chat_backend.Repository
+{
+    public class MessageRepository : IMessageRepository
+    {
+        private readonly ChatDbContext _context;
+
+        public MessageRepository(ChatDbContext context) => _context = context;
+
+        public async Task AddAsync(Message entity, CancellationToken token)
+        {
+            await _context.Message.AddAsync(entity, token);
+            await _context.SaveChangesAsync(token);
+        }
+
+        public async Task AddRangeAsync(IEnumerable<Message> entities, CancellationToken token)
+        {
+            await _context.Message.AddRangeAsync(entities);
+            await _context.SaveChangesAsync(token);
+        }
+
+        public async Task<Message> GetByIdAsync(int id, CancellationToken token)
+        {
+           return  await _context.Message.FindAsync(id, token) ?? Message.Empty;
+        }
+
+        public async Task<IEnumerable<Message>> GetAllAsync(CancellationToken token)
+        {
+            return await _context.Message.ToListAsync(token);
+        }
+
+        public async Task UpdateAsync(Message entity, CancellationToken token)
+        {
+            _context.Message.Update(entity);
+            await _context.SaveChangesAsync(token);
+        }
+
+        public async Task DeleteAsync(Message entity, CancellationToken token)
+        {
+            _context.Message.Remove(entity);
+            await _context.SaveChangesAsync(token);
+        }
+
+        public async Task DeleteByIdAsync(int id, CancellationToken token)
+        {
+            var message = await _context.Message.FindAsync(id, token);
+
+            if (message != null)
+            {
+                _context.Message.Remove(message);
+                await _context.SaveChangesAsync(token);
+            }
+        }
+
+        public async Task<bool> ExistsAsync(int id, CancellationToken token)
+        {
+            return await _context.Message.AnyAsync(m => m.Id == id, token);
+        }
+
+        public async Task<int> CountAsync(CancellationToken token)
+        {
+            return await _context.Message.CountAsync(token);
+        }
+
+    }
+}

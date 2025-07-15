@@ -1,4 +1,5 @@
 ﻿using bull_chat_backend.Models;
+using bull_chat_backend.Repository.RepositoryInterfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace bull_chat_backend.Repository
@@ -20,10 +21,18 @@ namespace bull_chat_backend.Repository
             await _context.User.AddRangeAsync(entities);
             await _context.SaveChangesAsync(token);
         }
-
-        public async Task<int> CountAsync(CancellationToken token)
+        public async Task<IEnumerable<User>> GetAllAsync(CancellationToken token)
         {
-            return await _context.User.CountAsync(token);
+            return await _context.User.ToListAsync(token);
+        }
+
+        public async Task<User> GetByIdAsync(int id, CancellationToken token) =>
+            await _context.User.FindAsync(id, token) ?? User.Empty;
+
+        public async Task UpdateAsync(User entity, CancellationToken token)
+        {
+            _context.User.Update(entity);
+            await _context.SaveChangesAsync(token);
         }
 
         public async Task DeleteAsync(User entity, CancellationToken token)
@@ -47,18 +56,9 @@ namespace bull_chat_backend.Repository
             return await _context.User.AnyAsync(u => u.Id == id , token);
         }
 
-        public async Task<IEnumerable<User>> GetAllAsync(CancellationToken token)
+        public async Task<int> CountAsync(CancellationToken token)
         {
-            return await _context.User.ToListAsync(token);
-        }
-
-        public async Task<User> GetByIdAsync(int id, CancellationToken token) =>
-            await _context.User.FindAsync(id, token) ?? User.Empty;
-
-        public async Task UpdateAsync(User entity,CancellationToken token)
-        {
-            _context.User.Update(entity);
-            await _context.SaveChangesAsync(token);
+            return await _context.User.CountAsync(token);
         }
 
         public async Task<User> GetByNameAsync(string name, CancellationToken token)
