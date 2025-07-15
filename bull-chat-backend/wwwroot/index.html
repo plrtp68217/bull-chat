@@ -10,26 +10,29 @@
         <input type="button" id="sendBtn" value="Отправить" disabled="disabled" />
     </div>
     <div id="chatroom"></div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.0/signalr.min.js"></script>
     <script>
         const hubConnection = new signalR.HubConnectionBuilder()
-            .withUrl("/bull")
+            .withUrl("/chat")
             .build();
 
         document.getElementById("sendBtn").addEventListener("click", function () {
             let userId = 1;
             let text = document.getElementById("message").value;
 
-            hubConnection.invoke("SendMessage", {userId, text})
+            hubConnection.invoke("SendMessage", userId, text)
                 .catch(function (err) {
                     return console.error(err.toString());
                 });
         });
 
-        hubConnection.on("Receive", function(message) {
+        hubConnection.on("ReceiveMessage", function(message) {
 
             let messageElement = document.createElement("p");
-            messageElement.textContent = message;
+
+            let content = `${message.userName}: ${message.text} (${new Date(message.date).toLocaleString()})`
+
+            messageElement.textContent = content;
             document.getElementById("chatroom").appendChild(messageElement);
         });
 
