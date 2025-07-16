@@ -20,12 +20,21 @@ namespace bull_chat_backend.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] UserRegisterRequest request, CancellationToken token)
         {
-            var user = await _userService.RegisterAsync(request.Login, request.Password, token);
+            try
+            {
+                var user = await _userService.RegisterAsync(request.Login, request.Password, token);
+                if (Models.DBase.User.IsEmpty(user))
+                    return BadRequest("Бычек пал");
+                return Ok("Бычек прошел");
 
-            if (Models.DBase.User.IsEmpty(user))
-                return BadRequest("Бычек пал");
+            }
+            catch (InvalidDataException ex)
+            {
+                return UnprocessableEntity(ex.Message);
+            }
 
-            return Ok("Бычек прошел");
+
+
         }
 
         [HttpPost("login")]

@@ -66,5 +66,10 @@ namespace bull_chat_backend.Repository
             return await _context.User
                 .FirstOrDefaultAsync(u => u.Name == name, token) ?? User.Empty;
         }
+
+        public async Task<bool> IsExistByName(string name, CancellationToken token)
+        {
+            return await _context.User.AnyAsync(u => u.Name == name, token);
+        }
     }
 }

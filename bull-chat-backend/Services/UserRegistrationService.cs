@@ -50,6 +50,9 @@ namespace bull_chat_backend.Services
         }
         public async Task<User> RegisterAsync(string name, string password , CancellationToken token)
         {
+            if (await _userRepository.IsExistByName(name , token))
+                throw new InvalidDataException($"Бычек с именем {nameof(name)} уже в стойле");
+
             var hash = _passwordHasher.GetHash(password);
 
             var user = new User()

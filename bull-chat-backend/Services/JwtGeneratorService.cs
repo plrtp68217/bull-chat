@@ -15,8 +15,16 @@ namespace bull_chat_backend.Services
         private readonly JwtOptions _options = options.Value;
 
         private const string DEFAULT_ROLE = "user";
+
         public string GenerateToken(User user)
         {
+            if (string.IsNullOrWhiteSpace(_options.SecretKey))
+            {
+                _logger.LogError("SecretKey в JwtOptions не задан.");
+                throw new InvalidOperationException("JWT SecretKey не задан в конфигурации.");
+            }
+
+
             var claims = new[]
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
@@ -25,7 +33,12 @@ namespace bull_chat_backend.Services
 
             };
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.SecretKey));
-            var signingCredentials = new SigningCredentials(key, SecurityAlgorithms.Sha384);
+            var keyBytes = Encoding.UTF8.GetBytes(_options.SecretKey);
+            if (keyBytes.Length < 32)
+            {
+                throw new InvalidOperationException("JWT SecretKey должен быть не менее 32 байт (256 бит) длиной.");
+            }
+            var signingCredentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(
                 claims: claims,
@@ -35,7 +48,7 @@ namespace bull_chat_backend.Services
                 expires: DateTime.UtcNow.AddHours(_options.ExpiredHours)
                 );
 
-            var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+            var tokenString = new JwtSecurityTokenHandler().WriteToken(token); //здесь
             _logger.LogInformation("JWT выдан для пользователя: {UserName} (ID: {UserId})", user.Name, user.Id);
             return tokenString;
 

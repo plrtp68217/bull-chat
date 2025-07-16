@@ -30,7 +30,8 @@ namespace bull_chat_backend
 
             builder.Services.AddSignalR();
 
-            builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("JwtOptions"));
+            builder.Services.Configure<JwtOptions>(
+                builder.Configuration.GetSection(nameof(JwtOptions)));
 
             builder.Services.AddControllers();
 
@@ -57,11 +58,6 @@ namespace bull_chat_backend
             app.UseRouting();
 
             app.MapHub<ChatHub>("/chat");
-
-            app.Map("/test", async (IUserRepository userRepository, CancellationToken token) =>
-            {
-                return await userRepository.CountAsync(token);
-            });
 
             if (app.Environment.IsDevelopment())
             {
