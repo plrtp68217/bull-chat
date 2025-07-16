@@ -1,4 +1,4 @@
-﻿namespace bull_chat_backend.Models
+﻿namespace bull_chat_backend.Models.DBase
 
 {
     public class Content

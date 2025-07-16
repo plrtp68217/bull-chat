@@ -21,25 +21,38 @@ namespace bull_chat_backend
 
             builder.Services.AddAuthorization();
 
+            //swagger
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
             builder.Services.AddSignalR();
 
+            builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("JwtOptions"));
+
+            builder.Services.AddControllers();
+
             builder.Services.AddTransient<IUserRepository, UserRepository>();
             builder.Services.AddTransient<IMessageRepository, MessageRepository>();
             builder.Services.AddTransient<IContentRepository, ContentRepository>();
 
+ 
+
             var app = builder.Build();
+
+            app.UseAuthentication(); // Важно! До UseAuthorization
+            app.UseAuthorization();
 
             app.UseDefaultFiles();
             app.UseStaticFiles();
+
+            app.MapControllers();
 
             app.UseRouting();
 
             app.MapHub<ChatHub>("/chat");
 
-            app.Map("/test",async (IUserRepository userRepository, CancellationToken token) => {
+            app.Map("/test", async (IUserRepository userRepository, CancellationToken token) =>
+            {
                 return await userRepository.CountAsync(token);
             });
 

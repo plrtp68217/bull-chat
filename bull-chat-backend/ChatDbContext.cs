@@ -1,4 +1,4 @@
-﻿using bull_chat_backend.Models;
+﻿using bull_chat_backend.Models.DBase;
 using Microsoft.EntityFrameworkCore;
 
 namespace bull_chat_backend
