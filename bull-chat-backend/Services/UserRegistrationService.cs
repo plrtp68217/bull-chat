@@ -1,22 +1,21 @@
 ﻿using bull_chat_backend.Models.DBase;
 using bull_chat_backend.Repository.RepositoryInterfaces;
 using bull_chat_backend.Services.Interfaces;
-using System.Threading.Tasks;
 
 namespace bull_chat_backend.Services
 {
-    public class UserService
+    public class UserRegistrationService
     {
-        private readonly ILogger<UserService> _logger;
+        private readonly ILogger<UserRegistrationService> _logger;
         private readonly IJwtGenerator<User> _jwtProvider;
         private readonly IPasswordHasher _passwordHasher;
         private readonly IUserRepository _userRepository;
 
-        public UserService(
+        public UserRegistrationService(
             IPasswordHasher passwordHasher,
             IUserRepository userRepository,
             IJwtGenerator<User> jwtProvider,
-            ILogger<UserService> logger)
+            ILogger<UserRegistrationService> logger)
         {
             _logger = logger;
             _jwtProvider = jwtProvider;

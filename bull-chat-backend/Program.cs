@@ -1,8 +1,11 @@
 
 using bull_chat_backend.Hubs;
 using bull_chat_backend.Models;
+using bull_chat_backend.Models.DBase;
 using bull_chat_backend.Repository;
 using bull_chat_backend.Repository.RepositoryInterfaces;
+using bull_chat_backend.Services;
+using bull_chat_backend.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using System;
@@ -31,10 +34,14 @@ namespace bull_chat_backend
 
             builder.Services.AddControllers();
 
+            builder.Services.AddTransient<UserRegistrationService>();
+
+            builder.Services.AddTransient<IJwtGenerator<User>, JwtGeneratorService>();
+            
             builder.Services.AddTransient<IUserRepository, UserRepository>();
+            builder.Services.AddTransient<IPasswordHasher, PasswordHasher>();
             builder.Services.AddTransient<IMessageRepository, MessageRepository>();
             builder.Services.AddTransient<IContentRepository, ContentRepository>();
-
  
 
             var app = builder.Build();

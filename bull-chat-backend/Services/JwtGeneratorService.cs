@@ -1,5 +1,6 @@
 ﻿using bull_chat_backend.Models;
 using bull_chat_backend.Models.DBase;
+using bull_chat_backend.Services.Interfaces;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -8,7 +9,7 @@ using System.Text;
 
 namespace bull_chat_backend.Services
 {
-    public class JwtGeneratorService(IOptions<JwtOptions> options, ILogger<JwtGeneratorService> logger)
+    public class JwtGeneratorService(IOptions<JwtOptions> options, ILogger<JwtGeneratorService> logger) : IJwtGenerator<User>
     {
         private readonly ILogger<JwtGeneratorService> _logger = logger;
         private readonly JwtOptions _options = options.Value;
@@ -24,7 +25,7 @@ namespace bull_chat_backend.Services
 
             };
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.SecretKey));
-            var signingCredentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            var signingCredentials = new SigningCredentials(key, SecurityAlgorithms.Sha384);
 
             var token = new JwtSecurityToken(
                 claims: claims,

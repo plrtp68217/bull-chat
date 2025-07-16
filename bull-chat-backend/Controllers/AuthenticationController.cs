@@ -4,14 +4,14 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace bull_chat_backend.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/[controller]/")]
     [ApiController]
     public class AuthenticationController : ControllerBase
     {
         private readonly ILogger<AuthenticationController> _logger;
-        private readonly UserService _userService;
+        private readonly UserRegistrationService _userService;
 
-        public AuthenticationController(ILogger<AuthenticationController> logger, UserService userService)
+        public AuthenticationController(ILogger<AuthenticationController> logger, UserRegistrationService userService)
         {
             _logger = logger;
             _userService = userService;
