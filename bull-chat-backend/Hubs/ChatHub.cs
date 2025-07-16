@@ -5,13 +5,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace bull_chat_backend.Hubs
 {
-    public interface IChatHub 
-    {
-        Task SendMessage(string user, string text);
-        Task ReceiveMessage(MessageDto message);
-        Task NotifyTyping(string user);
-        Task GetConnectedUsers();
-    }
 
     public class MessageDto
     {
@@ -36,6 +29,7 @@ namespace bull_chat_backend.Hubs
 
     public class ChatHub : Hub<IChatHub>
     {
+        public const string HUB_URI = "/chat";
         private readonly IUserRepository _userRepository;
         private readonly IMessageRepository _messageRepository;
         private readonly IContentRepository _contentRepository;

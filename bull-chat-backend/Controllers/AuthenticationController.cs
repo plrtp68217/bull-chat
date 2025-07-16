@@ -45,21 +45,15 @@ namespace bull_chat_backend.Controllers
             if (string.IsNullOrEmpty(jwtToken))
                 return BadRequest("Бычек пал");
 
-            HttpContext.Response.Cookies.Append("JWT", jwtToken, new CookieOptions
-            {
-                HttpOnly = true,
-                Secure = true,
-                SameSite = SameSiteMode.Strict,
-                Expires = DateTimeOffset.UtcNow.AddHours(2)
+            return Ok(new 
+            { 
+                Token = jwtToken 
             });
-
-            return Ok(new { Token = jwtToken });
         }
 
         [HttpPost("logout")]
         public IActionResult Logout()
         {
-            HttpContext.Response.Cookies.Delete("JWT");
             return Ok("Бычек ушел");
         }
     }

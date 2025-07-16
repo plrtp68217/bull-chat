@@ -38,7 +38,7 @@ namespace bull_chat_backend
             builder.Services.AddTransient<UserRegistrationService>();
 
             builder.Services.AddTransient<IJwtGenerator<User>, JwtGeneratorService>();
-            
+    
             builder.Services.AddTransient<IUserRepository, UserRepository>();
             builder.Services.AddTransient<IPasswordHasher, PasswordHasher>();
             builder.Services.AddTransient<IMessageRepository, MessageRepository>();
@@ -57,7 +57,7 @@ namespace bull_chat_backend
 
             app.UseRouting();
 
-            app.MapHub<ChatHub>("/chat");
+            app.MapHub<ChatHub>(ChatHub.HUB_URI);
 
             if (app.Environment.IsDevelopment())
             {
