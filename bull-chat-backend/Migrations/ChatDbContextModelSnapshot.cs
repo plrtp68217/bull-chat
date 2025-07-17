@@ -30,13 +30,22 @@ namespace bull_chat_backend.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("ContentType")
-                        .HasColumnType("integer");
+                    b.Property<string>("ContentType")
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)");
 
                     b.Property<string>("Item")
-                        .HasColumnType("text");
+                        .IsRequired()
+                        .HasMaxLength(2048)
+                        .HasColumnType("character varying(2048)");
+
+                    b.Property<int>("MessageId")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("MessageId")
+                        .IsUnique();
 
                     b.ToTable("Content");
                 });
@@ -49,9 +58,6 @@ namespace bull_chat_backend.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("ContentId")
-                        .HasColumnType("integer");
-
                     b.Property<DateTime>("Date")
                         .HasColumnType("timestamp with time zone");
 
@@ -59,8 +65,6 @@ namespace bull_chat_backend.Migrations
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ContentId");
 
                     b.HasIndex("UserId");
 
@@ -77,33 +81,44 @@ namespace bull_chat_backend.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("PasswordHash")
-                        .HasColumnType("text");
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
 
                     b.HasKey("Id");
 
                     b.ToTable("User");
                 });
 
-            modelBuilder.Entity("bull_chat_backend.Models.DBase.Message", b =>
+            modelBuilder.Entity("bull_chat_backend.Models.DBase.Content", b =>
                 {
-                    b.HasOne("bull_chat_backend.Models.DBase.Content", "Content")
-                        .WithMany()
-                        .HasForeignKey("ContentId")
+                    b.HasOne("bull_chat_backend.Models.DBase.Message", "Message")
+                        .WithOne("Content")
+                        .HasForeignKey("bull_chat_backend.Models.DBase.Content", "MessageId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("Message");
+                });
+
+            modelBuilder.Entity("bull_chat_backend.Models.DBase.Message", b =>
+                {
                     b.HasOne("bull_chat_backend.Models.DBase.User", "User")
                         .WithMany("Messages")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Content");
-
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("bull_chat_backend.Models.DBase.Message", b =>
+                {
+                    b.Navigation("Content")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("bull_chat_backend.Models.DBase.User", b =>

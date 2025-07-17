@@ -78,6 +78,7 @@ namespace bull_chat_backend.Repository
                 }
             };
             await _context.Message.AddAsync(msg, token);
+            await _context.SaveChangesAsync(token);
             return msg;
         }
     }
