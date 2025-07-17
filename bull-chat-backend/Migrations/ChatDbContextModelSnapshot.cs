@@ -22,7 +22,7 @@ namespace bull_chat_backend.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("bull_chat_backend.Models.Content", b =>
+            modelBuilder.Entity("bull_chat_backend.Models.DBase.Content", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -39,7 +39,7 @@ namespace bull_chat_backend.Migrations
                     b.ToTable("Content");
                 });
 
-            modelBuilder.Entity("bull_chat_backend.Models.Message", b =>
+            modelBuilder.Entity("bull_chat_backend.Models.DBase.Message", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -66,7 +66,7 @@ namespace bull_chat_backend.Migrations
                     b.ToTable("Message");
                 });
 
-            modelBuilder.Entity("bull_chat_backend.Models.User", b =>
+            modelBuilder.Entity("bull_chat_backend.Models.DBase.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -87,15 +87,15 @@ namespace bull_chat_backend.Migrations
                     b.ToTable("User");
                 });
 
-            modelBuilder.Entity("bull_chat_backend.Models.Message", b =>
+            modelBuilder.Entity("bull_chat_backend.Models.DBase.Message", b =>
                 {
-                    b.HasOne("bull_chat_backend.Models.Content", "Content")
+                    b.HasOne("bull_chat_backend.Models.DBase.Content", "Content")
                         .WithOne("Message")
-                        .HasForeignKey("bull_chat_backend.Models.Message", "ContentId")
+                        .HasForeignKey("bull_chat_backend.Models.DBase.Message", "ContentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("bull_chat_backend.Models.User", "User")
+                    b.HasOne("bull_chat_backend.Models.DBase.User", "User")
                         .WithMany("Messages")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -106,13 +106,12 @@ namespace bull_chat_backend.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("bull_chat_backend.Models.Content", b =>
+            modelBuilder.Entity("bull_chat_backend.Models.DBase.Content", b =>
                 {
-                    b.Navigation("Message")
-                        .IsRequired();
+                    b.Navigation("Message");
                 });
 
-            modelBuilder.Entity("bull_chat_backend.Models.User", b =>
+            modelBuilder.Entity("bull_chat_backend.Models.DBase.User", b =>
                 {
                     b.Navigation("Messages");
                 });
