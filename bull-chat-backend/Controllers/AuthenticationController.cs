@@ -1,5 +1,6 @@
 ﻿using bull_chat_backend.Models;
 using bull_chat_backend.Services;
+using bull_chat_backend.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace bull_chat_backend.Controllers
@@ -9,12 +10,12 @@ namespace bull_chat_backend.Controllers
     public class AuthenticationController : ControllerBase
     {
         private readonly ILogger<AuthenticationController> _logger;
-        private readonly UserRegistrationService _userService;
+        private readonly IUserRegistrationService _userRegistrationService;
 
-        public AuthenticationController(ILogger<AuthenticationController> logger, UserRegistrationService userService)
+        public AuthenticationController(ILogger<AuthenticationController> logger, IUserRegistrationService userRegistrationService)
         {
             _logger = logger;
-            _userService = userService;
+            _userRegistrationService = userRegistrationService;
         }
 
         [HttpPost("register")]
@@ -22,7 +23,7 @@ namespace bull_chat_backend.Controllers
         {
             try
             {
-                var user = await _userService.RegisterAsync(request.Login, request.Password, token);
+                var user = await _userRegistrationService.RegisterAsync(request.Login, request.Password, token);
                 if (Models.DBase.User.IsEmpty(user))
                     return BadRequest("Бычек пал");
                 return Ok("Бычек прошел");
@@ -40,7 +41,7 @@ namespace bull_chat_backend.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] UserRegisterRequest request, CancellationToken token)
         {
-            var jwtToken = await _userService.LoginAsync(request.Login, request.Password, token);
+            var jwtToken = await _userRegistrationService.LoginAsync(request.Login, request.Password, token);
 
             if (string.IsNullOrEmpty(jwtToken))
                 return BadRequest("Бычек пал");
