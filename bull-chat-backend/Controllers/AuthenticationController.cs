@@ -1,6 +1,7 @@
 ﻿using bull_chat_backend.Models;
 using bull_chat_backend.Services;
 using bull_chat_backend.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace bull_chat_backend.Controllers
@@ -46,9 +47,9 @@ namespace bull_chat_backend.Controllers
             if (string.IsNullOrEmpty(jwtToken))
                 return BadRequest("Бычек пал");
 
-            return Ok(new 
-            { 
-                Token = jwtToken 
+            return Ok(new
+            {
+                Token = $"Bearer {jwtToken}"
             });
         }
 
@@ -56,6 +57,13 @@ namespace bull_chat_backend.Controllers
         public IActionResult Logout()
         {
             return Ok("Бычек ушел");
+        }
+
+        [Authorize]
+        [HttpGet("test")]
+        public IActionResult Test()
+        {
+            return Ok("Успешно!");
         }
     }
 }

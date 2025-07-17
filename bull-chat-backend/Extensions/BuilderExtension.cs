@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace bull_chat_backend
+namespace bull_chat_backend.Extensions
 {
-    public static class BuilderEx
+    public static class BuilderExtension
     {
         public static IServiceCollection AddPgsqlConnection(this IServiceCollection services, string connectionString)
         {

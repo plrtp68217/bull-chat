@@ -8,6 +8,12 @@ using Microsoft.AspNetCore.SignalR;
 namespace bull_chat_backend.Hubs
 {
 
+
+    /*
+     * INFO:    В веб-сокетах и SignalR мы не можем использовать стандартный заголовок Authorization, поэтому токен передается как query-параметр:
+     *          Обращатся к хабу так /chat?access_token=ваш_токен_здесь
+     *          access_token забит как строковый литера (ЖЁСТКО, КАК И ДЕЛАЮТ БЫЧКИ см. Extensions.JwtAuthenticationExtensions.cs)
+     */
     [Authorize]
     public class ChatHub : Hub<IChatHub>
     {
