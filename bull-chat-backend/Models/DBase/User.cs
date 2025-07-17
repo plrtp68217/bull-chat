@@ -7,7 +7,7 @@ namespace bull_chat_backend.Models.DBase
     {
         public int Id { get; set; }
         public required string Name { get; set; }
-        public required string PasswordHash { get; set; }
+        public string PasswordHash { get; set; }
 
         public ICollection<Message> Messages { get; set; } = [];
 
