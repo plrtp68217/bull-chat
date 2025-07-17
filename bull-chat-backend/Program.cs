@@ -41,15 +41,15 @@ namespace bull_chat_backend
 
             builder.Services.AddCors(options =>
             {
-                options.AddPolicy("AllowAll", policy =>
+                options.AddPolicy("MyFrontendPolicy", policy =>
                 {
-                    policy.AllowAnyHeader()
+                    policy.WithOrigins("http://localhost:5173")
                           .AllowAnyMethod()
-                          .SetIsOriginAllowed(_ => true)
+                          .AllowAnyHeader()
                           .AllowCredentials();
                 });
             });
-        
+
 
             var app = builder.Build();
 
@@ -58,6 +58,8 @@ namespace bull_chat_backend
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+
+            app.UseCors("MyFrontendPolicy");
 
             app.UseDefaultFiles();
             app.UseStaticFiles();

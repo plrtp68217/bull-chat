@@ -34,9 +34,6 @@ namespace bull_chat_backend.Controllers
             {
                 return UnprocessableEntity(ex.Message);
             }
-
-
-
         }
 
         [HttpPost("login")]
