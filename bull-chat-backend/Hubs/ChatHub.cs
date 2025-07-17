@@ -1,35 +1,18 @@
-﻿using bull_chat_backend.Models.DBase;
+﻿using AutoMapper;
+using bull_chat_backend.Models.DBase;
+using bull_chat_backend.Models.DTO;
 using bull_chat_backend.Repository.RepositoryInterfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.EntityFrameworkCore;
 
 namespace bull_chat_backend.Hubs
 {
 
-    public class MessageDto
-    {
-        public int Id { get; set; }
-        public int UserId { get; set; }
-        public string UserName { get; set; }
-        public string Text { get; set; }
-        public DateTime Date { get; set; }
-
-        public static MessageDto FromEntity(Message message)
-        {
-            return new MessageDto
-            {
-                Id = message.Id,
-                UserId = message.User.Id,
-                UserName = message.User.Name,
-                Text = message.Content.Text,
-                Date = message.Date
-            };
-        }
-    }
-
+    [Authorize]
     public class ChatHub : Hub<IChatHub>
     {
         public const string HUB_URI = "/chat";
+        private readonly IMapper _mapper;
         private readonly IUserRepository _userRepository;
         private readonly IMessageRepository _messageRepository;
         private readonly IContentRepository _contentRepository;
@@ -37,33 +20,25 @@ namespace bull_chat_backend.Hubs
         public ChatHub(
             IUserRepository userRepository,
             IMessageRepository messageRepository,
-            IContentRepository contentRepository)
+            IContentRepository contentRepository,
+            IMapper mapper)
         {
+            _mapper = mapper;
             _userRepository = userRepository;
             _messageRepository = messageRepository;
             _contentRepository = contentRepository;
         }
 
-        public async Task SendMessage(int userId, string text)
+        public async Task SendMessage(MessageDto messageDto)
         {
-            var cts = new CancellationTokenSource();
-            CancellationToken token = cts.Token;
+            var token = Context.ConnectionAborted;
 
-            User user = await _userRepository.GetByIdAsync(userId, token);
+            var user = await _userRepository.GetByIdAsync(messageDto.UserId, token) ?? throw new HubException("User not found");
 
-            if (user == null) throw new HubException("User not found");
-
-            Message message = new()
-            {
-                UserId = userId,
-                Date = DateTime.UtcNow,
-                User = user,
-                Content = new Content { Text = text },
-            };
-
+            var message = _mapper.Map<MessageDto, Message>(messageDto);
             await _messageRepository.AddAsync(message, token);
 
-            await Clients.All.ReceiveMessage(MessageDto.FromEntity(message));
+            await Clients.All.ReceiveMessage(messageDto);
         }
     }
 }
