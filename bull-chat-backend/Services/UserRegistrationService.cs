@@ -4,7 +4,7 @@ using bull_chat_backend.Services.Interfaces;
 
 namespace bull_chat_backend.Services
 {
-    public class UserRegistrationService
+    public class UserRegistrationService : IUserRegistrationService
     {
         private readonly ILogger<UserRegistrationService> _logger;
         private readonly IJwtGenerator<User> _jwtProvider;
@@ -27,7 +27,7 @@ namespace bull_chat_backend.Services
         public async Task<string> LoginAsync(string name, string password, CancellationToken token)
         {
             _logger.LogDebug("Попытка залогинить бычка {name}", name);
-            var user = await _userRepository.GetByNameAsync(name , token);
+            var user = await _userRepository.GetByNameAsync(name, token);
 
             if (User.IsEmpty(user))
             {
@@ -48,9 +48,9 @@ namespace bull_chat_backend.Services
             return _jwtProvider.GenerateToken(user);
 
         }
-        public async Task<User> RegisterAsync(string name, string password , CancellationToken token)
+        public async Task<User> RegisterAsync(string name, string password, CancellationToken token)
         {
-            if (await _userRepository.IsExistByName(name , token))
+            if (await _userRepository.IsExistByName(name, token))
                 throw new InvalidDataException($"Бычек с именем {nameof(name)} уже в стойле");
 
             var hash = _passwordHasher.GetHash(password);
