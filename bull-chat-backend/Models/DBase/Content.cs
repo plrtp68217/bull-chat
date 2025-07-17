@@ -8,6 +8,9 @@ namespace bull_chat_backend.Models.DBase
         public ContentType? ContentType { get; set; }
         public string? Item { get; set; }
 
+        public int MessageId { get; set; }
+        public Message Message { get; set; }
+
         public static bool IsEmpty(Content c) => c.ContentType == Enum.ContentType.Unknown;
         public static Content Empty => new()
         {

@@ -5,6 +5,5 @@
         Unknown,
         Text,
         Image,
-        Count
     }
 }
