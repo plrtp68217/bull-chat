@@ -1,4 +1,5 @@
 ﻿using bull_chat_backend.Models.DBase;
+using bull_chat_backend.Models.DBase.Enum;
 using bull_chat_backend.Repository.RepositoryInterfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,7 +25,7 @@ namespace bull_chat_backend.Repository
 
         public async Task<Message> GetByIdAsync(int id, CancellationToken token)
         {
-           return  await _context.Message.FindAsync(id, token) ?? Message.Empty;
+            return await _context.Message.FindAsync(id, token) ?? Message.Empty;
         }
 
         public async Task<IEnumerable<Message>> GetAllAsync(CancellationToken token)
@@ -65,5 +66,19 @@ namespace bull_chat_backend.Repository
             return await _context.Message.CountAsync(token);
         }
 
+        public async Task<Message> AddAsync(User user, string item, ContentType contentType, CancellationToken token)
+        {
+            var msg = new Message()
+            {
+                User = user,
+                Content = new()
+                {
+                    ContentType = contentType,
+                    Item = item
+                }
+            };
+            await _context.Message.AddAsync(msg, token);
+            return msg;
+        }
     }
 }

@@ -1,14 +1,20 @@
-﻿namespace bull_chat_backend.Models.DTO
+﻿using bull_chat_backend.Models.DBase;
+
+namespace bull_chat_backend.Models.DTO
 {
     public class MessageDto
     {
-        public int Id { get; set; }
-        public DateTime Date { get; set; }
-        public int UserId { get; set; }
-        public int ContentId { get; set; }
+        public MessageDto() { }
+        public MessageDto(DateTime date, UserDto? user, ContentDto? content)
+        {
+            Date = date;
+            User = user;
+            Content = content;
+        }
 
-        // Пока так, во избежании рекурсии при маппинге
-        public string ContentText { get; set; }
-        public string UserName { get; set; }
+        public DateTime Date { get; set; }
+        public UserDto? User { get; set; }
+        public ContentDto? Content { get; set; }
+
     }
 }

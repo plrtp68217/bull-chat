@@ -18,10 +18,7 @@ namespace bull_chat_backend
                 .IsRequired();
 
             modelBuilder.Entity<Message>()
-                .HasOne(m => m.Content)
-                .WithOne(c => c.Message)
-                .HasForeignKey<Message>(m => m.ContentId)
-                .IsRequired();
+                .HasOne(m => m.Content);
         }
     }
 }

@@ -2,7 +2,7 @@
 
 namespace bull_chat_backend.Extensions
 {
-    public static class BuilderExtension
+    public static class PsqlExtension
     {
         public static IServiceCollection AddPgsqlConnection(this IServiceCollection services, string connectionString)
         {
