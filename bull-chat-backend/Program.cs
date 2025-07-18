@@ -10,6 +10,8 @@ namespace bull_chat_backend
 {
     public class Program
     {
+        private const string POLICY_NAME = "MyFrontendPolicy";
+
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
@@ -41,9 +43,9 @@ namespace bull_chat_backend
 
             builder.Services.AddCors(options =>
             {
-                options.AddPolicy("MyFrontendPolicy", policy =>
+                options.AddPolicy(POLICY_NAME, policy =>
                 {
-                    policy.WithOrigins("http://localhost:5173")
+                    policy.WithOrigins("http://127.0.0.1:5173")
                           .AllowAnyMethod()
                           .AllowAnyHeader()
                           .AllowCredentials();

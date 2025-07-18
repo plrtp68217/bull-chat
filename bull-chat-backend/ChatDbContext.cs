@@ -51,7 +51,8 @@ namespace bull_chat_backend
                     .HasConversion(
                         v => v == Models.DBase.Enum.ContentType.Text ? "txt" :
                              v == Models.DBase.Enum.ContentType.Image ? "img" :
-                             v == Models.DBase.Enum.ContentType.Unknown ? "unk" : "unk",
+                             v == Models.DBase.Enum.ContentType.Unknown ? "unk" : 
+                             "unk",
                         v => v == "txt" ? Models.DBase.Enum.ContentType.Text :
                              v == "img" ? Models.DBase.Enum.ContentType.Image :
                              v == "unk" ? Models.DBase.Enum.ContentType.Unknown :

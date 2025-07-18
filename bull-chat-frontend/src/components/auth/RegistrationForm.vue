@@ -77,7 +77,7 @@ const modelRef = ref<ModelType>({
   reenteredPassword: null
 })
 
-function validatePasswordStartWith(rule: FormItemRule, value: string): boolean {
+function validatePasswordStartWith(_rule: FormItemRule, value: string): boolean {
   return (
     !!modelRef.value.password
     && modelRef.value.password.startsWith(value)
@@ -85,7 +85,7 @@ function validatePasswordStartWith(rule: FormItemRule, value: string): boolean {
   )
 }
 
-function validatePasswordSame(rule: FormItemRule, value: string): boolean {
+function validatePasswordSame(_rule: FormItemRule, value: string): boolean {
   return value === modelRef.value.password
 }
 
@@ -93,7 +93,7 @@ const rules: FormRules = {
   name: [
     {
       required: true,
-      validator(rule: FormItemRule, value: string) {
+      validator(_rule: FormItemRule, value: string) {
         if (!value) {
           return new Error('Имя является обязательным')
         }
