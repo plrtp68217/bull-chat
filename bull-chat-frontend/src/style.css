@@ -49,3 +49,22 @@ button {
   cursor: pointer;
   padding: 0;
 }
+
+::-webkit-scrollbar {
+  width: 5px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #696868;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #a0a59d;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
