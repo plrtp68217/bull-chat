@@ -13,7 +13,7 @@ namespace bull_chat_backend.Hubs
         IMessageRepository messageRepository,
         ILogger<ChatHub> logger) : Hub<IChatHub>
     {
-        public const string HUB_URI = "/chat";
+        public const string HUB_URI = "/chatHub";
         private readonly ILogger<ChatHub> _logger = logger;
         private readonly IUserRepository _userRepository = userRepository;
         private readonly IMessageRepository _messageRepository = messageRepository;
