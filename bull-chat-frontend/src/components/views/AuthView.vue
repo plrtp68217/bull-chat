@@ -42,29 +42,40 @@ import RegistrationForm from '../auth/RegistrationForm.vue';
 
 import {api} from '../../api/index.ts';
 import type { IAuthDto } from '../../api/interfaces/authorization/IAuthDto.ts';
+import type { IAuthResponse } from '../../api/interfaces/authorization/IAuthResponse.ts';
+import { useUserStore } from '../../stores/user.ts';
 
-const message = useMessage()
+const infoMessage = useMessage();
+
+const userStore = useUserStore();
 
 async function loginUser(dto: IAuthDto) {
   api.auth.login(dto)
-    .then((response) => {
+    .then((response: IAuthResponse) => {
       const token = response.token;
       localStorage.setItem('authToken', token);
+
+      const user = response.user;
+      
+      userStore.setUser(user);
+
+      console.log(userStore.user);
+
       router.push('/chat');
-      message.success('Отлично, пройдемте в стойло!');
+      infoMessage.success('Отлично, вы авторизованы!');
     })
     .catch((error) => {
-      message.error(`${error}`);
+      infoMessage.error(`${error}`);
     })
 }
 
 async function registerUser(dto: IAuthDto) {
   api.auth.register(dto)
     .then((response) => {
-      message.success(`${response}`);
+      infoMessage.success(`${response}`);
     })
     .catch((error) => {
-      message.error(`${error}`);
+      infoMessage.error(`${error}`);
     })
 }
 

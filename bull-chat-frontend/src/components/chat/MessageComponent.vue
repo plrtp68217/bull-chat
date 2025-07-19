@@ -1,31 +1,36 @@
 <template>
-  <div :class="['message-bubble', sender]">
+
+  <div :class="['message-bubble', userId == message.user.id ? 'me' : 'not_me']">
+
+    <div class="message-author">
+      {{ message.user.name }}
+    </div>
+
     <div class="message-content">
-      {{ text }}
+      {{ message.content.item }}
     </div>
+
     <div class="message-time">
-      {{ time }}
+      {{ new Date(message.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}}
     </div>
-  </div>
+
+  </div> 
+
 </template>
 
 <script setup lang="ts">
-import type { MessageAuthor } from '../types/MessageTypes';
+import type { PropType } from 'vue'
+import type { IMessage } from '../../stores/interfaces/IMessage';
+import { useUserStore } from '../../stores/user';
+
+const userStore = useUserStore();
+const userId: number = userStore.getUserId;
 
 defineProps({
-  text: {
-    type: String,
+  message: {
+    type: Object as PropType<IMessage>,
     required: true
   },
-  sender: {
-    type: String,
-    validator: (value: MessageAuthor) => ['me','not_me'].includes(value),
-    required: true
-  },
-  time: {
-    type: String,
-    default: () => new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-  }
 });
 </script>
 

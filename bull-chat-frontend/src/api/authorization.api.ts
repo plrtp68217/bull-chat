@@ -1,12 +1,11 @@
 import apiClient from "./apiClient";
-import type { IToken } from "./interfaces/authorization/IToken";
 import type { IAuthDto } from "./interfaces/authorization/IAuthDto";
+import type { IAuthResponse } from "./interfaces/authorization/IAuthResponse";
 
 export default {
-  async login(dto: IAuthDto): Promise<IToken> {
+  async login(dto: IAuthDto): Promise<IAuthResponse> {
     const response = await apiClient.post('/authentication/login', dto);
-    const token = response.data.token;
-    return token;
+    return response.data;
   },
   async register(dto: IAuthDto): Promise<string> {
     const response = await apiClient.post('/authentication/register', dto);

@@ -34,24 +34,22 @@
 
           <div class="messages-container" ref="messagesContainer">
             <MessageComponent
-              v-for="(message, index) in messages"
+              v-for="(message, index) in messagesStore.getMessages"
               :key="index"
-              :text="message.text"
-              :sender="message.sender"
-              :time="formatTime(message.timestamp)"
+              :message="message"
             />
           </div>
 
         <div class="input-area">
           <n-input
-            v-model:value="newMessage"
+            v-model:value="newContent"
             type="textarea"
             placeholder="Введите сообщение..."
             :autosize="{ minRows: 2, maxRows: 5 }"
             @keyup.enter.prevent="sendMessage"
           />
 
-          <n-button type="primary" @click="sendMessage" :disabled="!newMessage.trim()">
+          <n-button type="primary" @click="sendMessage" :disabled="!newContent.trim()">
             Отправить
           </n-button>
 
@@ -64,43 +62,30 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, nextTick } from 'vue';
+import { ref, onMounted, nextTick, onUnmounted } from 'vue';
 import { NInput, NButton, NScrollbar } from 'naive-ui';
 import MessageComponent from '../chat/MessageComponent.vue';
-import type { Message } from '../types/MessageTypes';
+import { useChatHub } from '../../hubs/chat';
+import { useUserStore } from '../../stores/user';
+import { useMessagesStore } from '../../stores/messages';
+import { watch } from 'vue';
 
-const newMessage = ref('');
-const messages = ref<Message[]>([
-  { text: 'ыыыыыы', sender: 'not_me', timestamp: new Date() },
-  { text: 'Скоро в стойло', sender: 'me', timestamp: new Date() }
-]);
+const newContent = ref('');
+
+const userStore = useUserStore();
+const messagesStore = useMessagesStore();
 
 const messagesContainer = ref<HTMLElement | null>(null);
 
-const sendMessage = () => {
-  if (!newMessage.value.trim()) return;
-  
-  messages.value.push({
-    text: newMessage.value,
-    sender: 'me',
-    timestamp: new Date()
-  });
-  
-  newMessage.value = '';
-  
-  scrollToBottom();
-  
-  setTimeout(() => {
-    messages.value.push({
-      text: 'АААА',
-      sender: 'not_me',
-      timestamp: new Date()
-    });
-    scrollToBottom();
-  }, 1000);
-};
+const { start, stop, invoke } = useChatHub();
+const token = localStorage.getItem('authToken') || '';
 
-const formatTime = (date: Date) =>  date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+const sendMessage = () => {
+  if (!newContent.value.trim()) return;
+
+  invoke.SendMessage(userStore.getUserId!, newContent.value);
+  newContent.value = '';
+}
 
 const scrollToBottom = () => {
   nextTick(() => {
@@ -110,9 +95,21 @@ const scrollToBottom = () => {
   });
 };
 
-onMounted(() => {
+watch(
+  () => messagesStore.messages?.length,
+  () => {
+    scrollToBottom()
+  },
+)
+
+onMounted(async () => {
+  if (token) await start(token);
   scrollToBottom();
 });
+
+onUnmounted(async () => {
+  await stop();
+})
 </script>
 
 <style scoped>

@@ -8,12 +8,13 @@ const apiClient = axios.create({
     'Content-Type': 'application/json',
     'Access-Control-Allow-Origin': '*',
   },
+  withCredentials: true
 });
 
 apiClient.interceptors.request.use((config) => {
   const token = localStorage.getItem('authToken')
   if (token) {
-    config.headers.Authorization = `${token}`
+    config.headers.Authorization = `Bearer ${token}`
   }
   return config
 })
