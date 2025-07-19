@@ -65,7 +65,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, nextTick } from 'vue';
-import { NInput, NButton, NScrollbar, NDivider } from 'naive-ui';
+import { NInput, NButton, NScrollbar } from 'naive-ui';
 import MessageComponent from '../chat/MessageComponent.vue';
 import type { Message } from '../types/MessageTypes';
 
