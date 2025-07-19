@@ -17,7 +17,7 @@ import { NConfigProvider, NMessageProvider, darkTheme } from 'naive-ui'
 
 </script>
 
-<style>
+<style scoped>
 
 .app_container {
   height: 100vh;
