@@ -1,17 +1,47 @@
 <template>
   <div class="root">
-    <div class="right_column" style="background-color: blue;"></div>
-    <div class="center_column">
+
+
+      <div class="chat-info"> 
+
+        <n-card style="margin-bottom: 16px">
+
+          <n-tabs type="line" animated>
+
+            <n-tab-pane class="chat-info-tab" name="oasis" tab="В сети">
+              <n-scrollbar>
+                <p v-for="i in 50">
+                  Бычок {{ i }}
+                </p>
+              </n-scrollbar>
+            </n-tab-pane>
+
+            <n-tab-pane class="chat-info-tab" name="the beatles" tab="Участники">
+              <n-scrollbar>
+                <p v-for="i in 90">
+                  Бычок {{ i }}
+                </p>
+              </n-scrollbar>
+            </n-tab-pane>
+
+          </n-tabs>
+
+        </n-card>
+        
+      </div>
+
       <div class="chat-container">
-        <div class="messages-container" ref="messagesContainer">
-          <MessageComponent
-            v-for="(message, index) in messages"
-            :key="index"
-            :text="message.text"
-            :sender="message.sender"
-            :time="formatTime(message.timestamp)"
-          />
-        </div>
+
+          <div class="messages-container" ref="messagesContainer">
+            <MessageComponent
+              v-for="(message, index) in messages"
+              :key="index"
+              :text="message.text"
+              :sender="message.sender"
+              :time="formatTime(message.timestamp)"
+            />
+          </div>
+
         <div class="input-area">
           <n-input
             v-model:value="newMessage"
@@ -20,19 +50,22 @@
             :autosize="{ minRows: 2, maxRows: 5 }"
             @keyup.enter.prevent="sendMessage"
           />
+
           <n-button type="primary" @click="sendMessage" :disabled="!newMessage.trim()">
             Отправить
           </n-button>
+
         </div>
+
       </div>
-    </div>
-    <div class="left_column" style="background-color: green;"></div>
+
   </div>
+
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, nextTick } from 'vue';
-import { NInput, NButton } from 'naive-ui';
+import { NInput, NButton, NScrollbar, NDivider } from 'naive-ui';
 import MessageComponent from '../chat/MessageComponent.vue';
 import type { Message } from '../types/MessageTypes';
 
@@ -84,59 +117,42 @@ onMounted(() => {
 
 <style scoped>
 .root {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  grid-template-rows: repeat(5, 1fr);
-  grid-column-gap: 14px;
-  grid-row-gap: 0px;
-  height: 95vh; /* что то надо с этим делать */
-  overflow: hidden; 
-}
-
-.center_column {
-  grid-area: 1 / 2 / 6 / 5;
-  display: flex;
-  flex-direction: column;
-  padding: 16px;
-  background-color: #f5f5f500;
   height: 100%;
-  overflow: hidden; 
+  display: flex;
+  gap: 10px;
 }
 
-.left_column {
-  grid-area: 1 / 1 / 6 / 2;
-  overflow: hidden; 
+.chat-info {
+  width: 200px;
 }
 
-.right_column {
-  grid-area: 1 / 5 / 6 / 6;
-  overflow: hidden; 
+.chat-info-tab {
+  height: 50vh;
 }
 
 .chat-container {
   display: flex;
   flex-direction: column;
-  height: 100%;
-  background-color: #202020ff; /* ЦВЕТ */
+  width: 100%;
+  height: 95vh;
+  background-color: #202020ff;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   overflow: hidden; 
 }
 
 .messages-container {
-  flex-grow: 1;
+  height: 100%;
   padding: 16px;
-  overflow-y: auto; 
+  overflow: auto; 
   display: flex;
   flex-direction: column;
 }
 
 .input-area {
   padding: 12px;
-  border-top: 1px solid #e0e0e0;
   display: flex;
   gap: 8px;
-  background-color: white;
   flex-shrink: 0; /* Запрещаем сжатие области ввода */
 }
 </style>
