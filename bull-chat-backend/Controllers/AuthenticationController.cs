@@ -46,7 +46,7 @@ namespace bull_chat_backend.Controllers
 
             return Ok(new
             {
-                Token = $"Bearer {jwtToken}"
+                Token = $"{jwtToken}"
             });
         }
 
