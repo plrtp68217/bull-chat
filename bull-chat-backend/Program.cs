@@ -45,7 +45,7 @@ namespace bull_chat_backend
             {
                 options.AddPolicy(POLICY_NAME, policy =>
                 {
-                    policy.WithOrigins("http://127.0.0.1:5173")
+                    policy.WithOrigins("http://localhost:5173")
                           .AllowAnyMethod()
                           .AllowAnyHeader()
                           .AllowCredentials();
@@ -61,7 +61,7 @@ namespace bull_chat_backend
                 app.UseSwaggerUI();
             }
 
-            app.UseCors("MyFrontendPolicy");
+            app.UseCors(POLICY_NAME);
 
             app.UseDefaultFiles();
             app.UseStaticFiles();
