@@ -12,10 +12,6 @@
 <script setup lang="ts">
 import type { MessageAuthor } from '../types/MessageTypes';
 
-
-
-
-
 defineProps({
   text: {
     type: String,
@@ -41,19 +37,18 @@ defineProps({
   margin-bottom: 12px;
   position: relative;
   word-wrap: break-word;
+  color: white;
 }
 
 .message-bubble.me {
   align-self: flex-end;
   background-color: #1890ff;
-  color: white;
   border-bottom-right-radius: 4px;
 }
 
 .message-bubble.not_me{
   align-self: flex-start;
-  background-color: #f0f0f0;
-  color: #333;
+  background-color: #494646fa;
   border-bottom-left-radius: 4px;
 }
 
