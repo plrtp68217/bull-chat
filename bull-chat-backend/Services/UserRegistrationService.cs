@@ -24,7 +24,7 @@ namespace bull_chat_backend.Services
         }
 
 
-        public async Task<string> LoginAsync(string name, string password, CancellationToken token)
+        public async Task<ILoginResponse> LoginAsync(string name, string password, CancellationToken token)
         {
             _logger.LogDebug("Попытка залогинить бычка {name}", name);
             var user = await _userRepository.GetByNameAsync(name, token);
@@ -32,7 +32,7 @@ namespace bull_chat_backend.Services
             if (User.IsEmpty(user))
             {
                 _logger.LogError("Бычек с именем {name} не найден!", name);
-                return string.Empty;
+                return new LoginResponse("", User.Empty);
 
             }
             _logger.LogDebug("Бычек с именем {name} найден!", name);
@@ -42,12 +42,14 @@ namespace bull_chat_backend.Services
             if (!isValidPassword)
             {
                 _logger.LogError($"Ой-ой кто то быканул...");
-                return string.Empty;
+                return new LoginResponse("", User.Empty);
             }
 
-            return _jwtProvider.GenerateToken(user);
+            var jwtToken = _jwtProvider.GenerateToken(user);
 
+            return new LoginResponse(jwtToken, user);
         }
+
         public async Task<User> RegisterAsync(string name, string password, CancellationToken token)
         {
             if (await _userRepository.IsExistByName(name, token))

@@ -39,14 +39,18 @@ namespace bull_chat_backend.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] UserRegisterRequest request, CancellationToken token)
         {
-            var jwtToken = await _userRegistrationService.LoginAsync(request.Login, request.Password, token);
+            var loginResponse = await _userRegistrationService.LoginAsync(request.Login, request.Password, token);
+
+            var jwtToken = loginResponse.Token;
+            var user = loginResponse.User;
 
             if (string.IsNullOrEmpty(jwtToken))
                 return BadRequest("Бычек пал");
-
+           
             return Ok(new
             {
-                Token = $"{jwtToken}"
+                Token = $"{jwtToken}",
+                User = user,
             });
         }
 
