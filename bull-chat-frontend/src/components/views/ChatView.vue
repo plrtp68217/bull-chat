@@ -1,61 +1,58 @@
 <template>
   <div class="root">
 
+    <div class="chat-header">
 
-      <div class="chat-info"> 
+      <n-button 
+        tertiary
+        round
+        type="primary" 
+        @click="activateDrawer"
+      >
+        Информация
+      </n-button>
 
-        <n-card style="margin-bottom: 16px">
+      
+      <n-button 
+        tertiary 
+        round 
+        type="info"
+      >
+        Выход
+      </n-button>
+      
+    </div>
 
-          <n-tabs type="line" animated>
+    <n-drawer v-model:show="isDrawerActive" :placement="drawerPlacement">
+      <n-drawer-content>
+        Бычок без еды продержится ровно 5 минут, после чего начинается тряска.
+      </n-drawer-content>
+    </n-drawer>
 
-            <n-tab-pane class="chat-info-tab" name="oasis" tab="В сети">
-              <n-scrollbar>
-                <p v-for="i in 50">
-                  Бычок {{ i }}
-                </p>
-              </n-scrollbar>
-            </n-tab-pane>
+    <div class="chat-container">
 
-            <n-tab-pane class="chat-info-tab" name="the beatles" tab="Участники">
-              <n-scrollbar>
-                <p v-for="i in 90">
-                  Бычок {{ i }}
-                </p>
-              </n-scrollbar>
-            </n-tab-pane>
-
-          </n-tabs>
-
-        </n-card>
-        
+      <div class="messages-container" ref="messagesContainer">
+        <MessageComponent
+          v-for="(message, index) in messagesStore.getMessages"
+          :key="index"
+          :message="message"
+        />
       </div>
 
-      <div class="chat-container">
-
-          <div class="messages-container" ref="messagesContainer">
-            <MessageComponent
-              v-for="(message, index) in messagesStore.getMessages"
-              :key="index"
-              :message="message"
-            />
-          </div>
-
-        <div class="input-area">
-          <n-input
-            v-model:value="newContent"
-            type="textarea"
-            placeholder="Введите сообщение..."
-            :autosize="{ minRows: 2, maxRows: 5 }"
-            @keyup.enter.prevent="sendMessage"
-          />
-
-          <n-button type="primary" @click="sendMessage" :disabled="!newContent.trim()">
-            Отправить
-          </n-button>
-
-        </div>
-
+      <div class="input-area">
+        <n-input
+          v-model:value="newContent"
+          type="textarea"
+          placeholder="Введите сообщение..."
+          :autosize="{ minRows: 2, maxRows: 5 }"
+          @keyup.enter.prevent="sendMessage"
+        />
+        <n-button type="primary" @click="sendMessage" :disabled="!newContent.trim()">
+          Отправить
+        </n-button>
       </div>
+      
+    </div>
 
   </div>
 
@@ -63,7 +60,9 @@
 
 <script setup lang="ts">
 import { ref, onMounted, nextTick, onUnmounted, watch } from 'vue';
-import { NInput, NButton, NScrollbar, useMessage } from 'naive-ui';
+import { NInput, NButton, useMessage } from 'naive-ui';
+
+import type { DrawerPlacement } from 'naive-ui';
 
 import type { MessageApi } from 'naive-ui';
 
@@ -74,6 +73,9 @@ import { useUserStore } from '../../stores/user';
 import { useMessagesStore } from '../../stores/messages';
 
 const flash: MessageApi   = useMessage();
+
+const isDrawerActive = ref(false);
+const drawerPlacement = ref<DrawerPlacement>('top');
 
 const newContent = ref('');
 
@@ -100,6 +102,10 @@ const scrollToBottom = () => {
   });
 };
 
+function activateDrawer() {
+  isDrawerActive.value = true
+}
+
 watch(
   () => messagesStore.messages?.length,
   () => {
@@ -117,36 +123,42 @@ onUnmounted(async () => {
 })
 </script>
 
-<style scoped>
+<style>
 .root {
   height: 100%;
+  width: 1100px;
+  margin: auto;
   display: flex;
-  gap: 10px;
+  flex-direction: column;
 }
 
-.chat-info {
-  width: 200px;
+@media (max-width: 1100px) {
+  .root {
+    width: auto;
+  }
 }
 
-.chat-info-tab {
-  height: 50vh;
+.chat-header {
+  display: flex;
+  justify-content: space-between;
 }
 
 .chat-container {
-  display: flex;
-  flex-direction: column;
   width: 100%;
-  height: 95vh;
-  background-color: #202020ff;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  height: 100%;
+  display: flex;
+  margin-top: 10px;
+  flex-direction: column;
+  background-color: rgba(32, 32, 32, 0.185);
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(240, 240, 240, 0.171);
   overflow: hidden; 
 }
 
 .messages-container {
   height: 100%;
   padding: 16px;
-  overflow: auto; 
+  overflow-y: auto; 
   display: flex;
   flex-direction: column;
 }
@@ -155,6 +167,6 @@ onUnmounted(async () => {
   padding: 12px;
   display: flex;
   gap: 8px;
-  flex-shrink: 0; /* Запрещаем сжатие области ввода */
+  flex-shrink: 0;
 }
 </style>
