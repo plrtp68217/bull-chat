@@ -1,12 +1,12 @@
 <template>
 
-  <n-config-provider :theme="darkTheme">
+  <n-config-provider class="config-provider" :theme="darkTheme">
     
-    <n-card class="app_container">
+    <div class="app_container">
       <n-message-provider>
         <router-view />
       </n-message-provider>
-    </n-card>
+    </div>
 
   </n-config-provider>
 
@@ -19,9 +19,15 @@ import { NConfigProvider, NMessageProvider, darkTheme } from 'naive-ui'
 
 <style scoped>
 
-.app_container {
+.config-provider {
   height: 100vh;
+}
+
+.app_container {
+  height: 100%;
   border-radius: 0;
+  background-color: rgb(24, 24, 28);
+  padding: 16px;
 }
 
 </style>
