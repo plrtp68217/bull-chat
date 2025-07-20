@@ -123,7 +123,7 @@ onUnmounted(async () => {
 })
 </script>
 
-<style>
+<style scoped>
 .root {
   height: 100%;
   width: 1100px;
