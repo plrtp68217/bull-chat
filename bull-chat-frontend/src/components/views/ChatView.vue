@@ -62,13 +62,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, nextTick, onUnmounted } from 'vue';
-import { NInput, NButton, NScrollbar } from 'naive-ui';
+import { ref, onMounted, nextTick, onUnmounted, watch } from 'vue';
+import { NInput, NButton, NScrollbar, useMessage } from 'naive-ui';
+
+import type { MessageApi } from 'naive-ui';
+
 import MessageComponent from '../chat/MessageComponent.vue';
+
 import { useChatHub } from '../../hubs/chat';
 import { useUserStore } from '../../stores/user';
 import { useMessagesStore } from '../../stores/messages';
-import { watch } from 'vue';
+
+const flash: MessageApi   = useMessage();
 
 const newContent = ref('');
 
@@ -103,12 +108,12 @@ watch(
 )
 
 onMounted(async () => {
-  if (token) await start(token);
+  if (token) await start(token, flash);
   scrollToBottom();
 });
 
 onUnmounted(async () => {
-  await stop();
+  await stop(flash);
 })
 </script>
 
