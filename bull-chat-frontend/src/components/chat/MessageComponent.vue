@@ -48,13 +48,13 @@ defineProps({
 .message-bubble.me {
   align-self: flex-end;
   background-color: #1890ff;
-  border-bottom-right-radius: 4px;
+  border-bottom-right-radius: 0;
 }
 
 .message-bubble.not_me{
   align-self: flex-start;
   background-color: #494646fa;
-  border-bottom-left-radius: 4px;
+  border-bottom-left-radius: 0;
 }
 
 .message-content {
