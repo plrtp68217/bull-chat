@@ -7,10 +7,12 @@ export type IMessageAuthor = 'me' | 'not_me';
 //   Me,
 //   NotMe,
 // }
+
 export interface IMessage {
   user: IUser,
   content:  {
     item: string
   };
   date: Date;
+  isAuthor: boolean
 }
