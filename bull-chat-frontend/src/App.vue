@@ -14,6 +14,28 @@
 
 <script setup lang="ts">
 import { NConfigProvider, NMessageProvider, darkTheme } from 'naive-ui'
+import router from '../router/router';
+import { api } from './api';
+import { onMounted } from 'vue';
+
+async function checkAuthAndRedirect() {
+  try {
+    const isValidToken = await api.auth.validateJwt();
+    
+    if (isValidToken == false) {
+      return;
+    }
+
+    router.push('/chat');
+  }
+  catch {
+    router.push('/');
+  }
+}
+
+onMounted(() => {
+  checkAuthAndRedirect();
+})
 
 </script>
 

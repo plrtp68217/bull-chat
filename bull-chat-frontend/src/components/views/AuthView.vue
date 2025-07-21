@@ -42,26 +42,18 @@ import RegistrationForm from '../auth/RegistrationForm.vue';
 
 import {api} from '../../api/index.ts';
 import type { IAuthDto } from '../../api/interfaces/authorization/IAuthDto.ts';
-import type { IAuthResponse } from '../../api/interfaces/authorization/IAuthResponse.ts';
-import { useUserStore } from '../../stores/user.ts';
-import type { IUser } from '../../stores/interfaces/IUser.ts';
-import { onMounted } from 'vue';
 
 const flash = useMessage();
 
-const userStore = useUserStore();
-
 async function loginUser(dto: IAuthDto) {
   try {
-    const authResponse: IAuthResponse = await api.auth.login(dto);
+    const authResponse = await api.auth.login(dto);
 
-    const token = authResponse.token;
-    localStorage.setItem('authToken', token);
+    if (authResponse == false) {
+      flash.warning('Неверные данные по бычку, не ври!');
+      return;
+    }
 
-    const user = authResponse.user;
-    localStorage.setItem('user', JSON.stringify(user));
-
-    userStore.setUser(user);
     router.push('/chat');
     flash.success('Отлично, вы авторизованы!');
   }
@@ -79,33 +71,6 @@ async function registerUser(dto: IAuthDto) {
     flash.error(`${error}`);
   }
 }
-
-// !!! Если перезагрузить страницу, то поле user будет пустым и вылетит ошибка
-async function checkAuthAndRedirect() {
-  const userString = localStorage.getItem('user');
-  const token = localStorage.getItem('authToken');
-
-  if (userString == undefined || token == undefined) return;
-  
-  try {
-    const isValidToken = await api.auth.validateJwt(token);
-    const user = JSON.parse(userString) as IUser;
-    
-    if (isValidToken == false) {
-      return;
-    }
-
-    userStore.setUser(user);
-    router.push('/chat');
-  }
-  catch {
-    flash.info("Пройдите процесс авторизации");
-  }
-}
-
-onMounted(() => {
-  checkAuthAndRedirect();
-})
 
 </script>
 

@@ -70,10 +70,8 @@ import type { MessageApi } from 'naive-ui';
 
 import MessageComponent from '../chat/MessageComponent.vue';
 
+import { useMessagesStore } from '../../stores/messages.ts';
 import { useChatHub } from '../../hubs/chat';
-import { useUserStore } from '../../stores/user';
-import { useMessagesStore } from '../../stores/messages';
-
 import { api } from '../../api';
 
 const flash: MessageApi = useMessage();
@@ -83,25 +81,22 @@ const drawerPlacement = ref<DrawerPlacement>('top');
 
 const newContent = ref('');
 
-const userStore = useUserStore();
 const messagesStore = useMessagesStore();
 
 const messagesContainer = ref<HTMLElement | null>(null);
 
 const { start, stop, invoke } = useChatHub();
-const token = localStorage.getItem('authToken') || '';
 
 const sendMessage = () => {
   if (!newContent.value.trim()) return;
 
-  invoke.SendMessage(userStore.getClientHash, newContent.value);
+  invoke.SendMessage(newContent.value);
   newContent.value = '';
 }
 
-// !!! ClientHash передается, но сервер выдает 400
 async function logOut() {
   try {
-    const logoutResponse = await api.auth.logout(userStore.getClientHash);
+    const logoutResponse = await api.auth.logout();
     router.push('/');
     flash.success(logoutResponse);
   }
@@ -123,12 +118,12 @@ function activateDrawer() {
 }
 
 watch(
-  () => messagesStore.messages?.length,
+  () => messagesStore.getMessages?.length,
   (_old, _new) => scrollToBottom()
 )
 
 onMounted(async () => {
-  if (token) await start(token, flash);
+  await start(flash);
   scrollToBottom();
 });
 
