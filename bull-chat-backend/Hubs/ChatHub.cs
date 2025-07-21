@@ -6,25 +6,29 @@ using Microsoft.AspNetCore.SignalR;
 namespace bull_chat_backend.Hubs
 {
     [Authorize]
+    public record UserCredentials(string SessionHash, int UserId);
     public class ChatHub(
         IMessageRepository messageRepository,
+        IUserRepository userRepository,
         TokenMapService tokenMapService,
         ILogger<ChatHub> logger) : Hub<IChatHub>
     {
         public const string HUB_URI = "/chatHub";
         private readonly ILogger<ChatHub> _logger = logger;
         private readonly IMessageRepository _messageRepository = messageRepository;
+        private readonly IUserRepository _userRepository = userRepository;
         private readonly TokenMapService _tokenMapService = tokenMapService;
 
-        public async Task SendMessage(string clientHash, string content)
+        public async Task SendMessage(UserCredentials userCredentials, string content)
         {
             var token = Context.ConnectionAborted;
-            var rawHash = Convert.FromBase64String(clientHash);
-            var user = _tokenMapService.GetUserByUserSessionHash(rawHash);
+            var user = await _userRepository.GetByIdAsync(userCredentials.UserId, token);
+            var rawHash = Convert.FromBase64String(userCredentials.SessionHash);
+            var isUserVerified = _tokenMapService.VerifyUserSession(user, rawHash);
 
-            if (!_tokenMapService.VerifyUserSession(user, rawHash))
+            if (!isUserVerified)
             {
-                _logger.LogWarning("Бычка не удалось найти в стойле hash = {UserHash}", clientHash);
+                _logger.LogWarning("Бычка не удалось найти в стойле (возможно, попытка обмана) hash = {UserHash}", rawHash);
                 throw new UnauthorizedAccessException("Invalid session");
             }
 

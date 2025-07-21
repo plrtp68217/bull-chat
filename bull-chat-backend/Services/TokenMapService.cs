@@ -1,16 +1,19 @@
 ﻿using bull_chat_backend.Models.DBase;
+using bull_chat_backend.Repository.RepositoryInterfaces;
 using Microsoft.AspNetCore.Components.Forms;
 using System.Collections.Concurrent;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Cryptography;
+using System.Threading.Tasks;
 
 namespace bull_chat_backend.Services
 {
-    public class TokenMapService(ILogger<TokenMapService> logger)
+    public class TokenMapService(ILogger<TokenMapService> logger, IUserRepository userRepository)
     {
         private readonly ConcurrentDictionary<string, User> _jwtUserMap = new();
         private readonly ConcurrentDictionary<User, byte[]> _userSessionHashMap = new();
         private readonly ILogger<TokenMapService> _logger = logger;
+        private readonly IUserRepository _userRepository = userRepository;
 
         public bool AddUserSession(User user, string jwt, byte[] sessionHash)
         {
@@ -39,6 +42,12 @@ namespace bull_chat_backend.Services
                 return false;
 
             return CryptographicOperations.FixedTimeEquals(storedHash, inputHash);
+        }
+
+        public async Task<bool> VerifyUserSession(int userId, byte[] inputHash, CancellationToken token)
+        {
+            var user = await _userRepository.GetByIdAsync(userId, token);
+            return VerifyUserSession(user, inputHash);
         }
 
         public bool RemoveUserSession(User user)
