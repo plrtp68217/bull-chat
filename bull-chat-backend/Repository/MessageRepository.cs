@@ -87,6 +87,7 @@ namespace bull_chat_backend.Repository
         public async Task<ICollection<MessageDto>> GetLastNFromDateAsync(int count, DateTime fromDate, CancellationToken token)
         {
             return await _context.Message
+                .AsNoTracking()
                 .Include(m => m.User)
                 .Include(m => m.Content)
                 .Where(m => m.Date >= fromDate)
@@ -111,7 +112,10 @@ namespace bull_chat_backend.Repository
 
         public async ValueTask<DateTime> LastMessageDate(CancellationToken token)
         {
-            var lastMessage = await _context.Message.LastAsync(token);
+            var lastMessage = await _context.Message
+                .OrderByDescending(m => m.Date)
+                .FirstAsync(token);
+
             return lastMessage.Date;
         }
     }
