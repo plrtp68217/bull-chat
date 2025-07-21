@@ -17,6 +17,7 @@
         tertiary 
         round 
         type="info"
+        @click="logOut"
       >
         Выход
       </n-button>
@@ -59,6 +60,7 @@
 </template>
 
 <script setup lang="ts">
+import router from '../../../router/router.ts';
 import { ref, onMounted, nextTick, onUnmounted, watch } from 'vue';
 import { NInput, NButton, useMessage } from 'naive-ui';
 
@@ -71,6 +73,8 @@ import MessageComponent from '../chat/MessageComponent.vue';
 import { useChatHub } from '../../hubs/chat';
 import { useUserStore } from '../../stores/user';
 import { useMessagesStore } from '../../stores/messages';
+
+import { api } from '../../api';
 
 const flash: MessageApi = useMessage();
 
@@ -90,11 +94,23 @@ const token = localStorage.getItem('authToken') || '';
 const sendMessage = () => {
   if (!newContent.value.trim()) return;
 
-  invoke.SendMessage(userStore.getUserId!, newContent.value);
+  invoke.SendMessage(userStore.getClientHash, newContent.value);
   newContent.value = '';
 }
 
-const scrollToBottom = () => {
+// !!! ClientHash передается, но сервер выдает 400
+async function logOut() {
+  try {
+    const logoutResponse = await api.auth.logout(userStore.getClientHash);
+    router.push('/');
+    flash.success(logoutResponse);
+  }
+  catch (error) {
+    flash.error(`${error}`);
+  }
+}
+
+function scrollToBottom() {
   nextTick(() => {
     if (messagesContainer.value) {
       messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight;

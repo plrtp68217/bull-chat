@@ -44,40 +44,68 @@ import {api} from '../../api/index.ts';
 import type { IAuthDto } from '../../api/interfaces/authorization/IAuthDto.ts';
 import type { IAuthResponse } from '../../api/interfaces/authorization/IAuthResponse.ts';
 import { useUserStore } from '../../stores/user.ts';
+import type { IUser } from '../../stores/interfaces/IUser.ts';
+import { onMounted } from 'vue';
 
-const infoMessage = useMessage();
+const flash = useMessage();
 
 const userStore = useUserStore();
 
 async function loginUser(dto: IAuthDto) {
-  api.auth.login(dto)
-    .then((response: IAuthResponse) => {
-      const token = response.token;
-      localStorage.setItem('authToken', token);
+  try {
+    const authResponse: IAuthResponse = await api.auth.login(dto);
 
-      const user = response.user;
-      
-      userStore.setUser(user);
+    const token = authResponse.token;
+    localStorage.setItem('authToken', token);
 
-      console.log(userStore.user);
+    const user = authResponse.user;
+    localStorage.setItem('user', JSON.stringify(user));
 
-      router.push('/chat');
-      infoMessage.success('Отлично, вы авторизованы!');
-    })
-    .catch((error) => {
-      infoMessage.error(`${error}`);
-    })
+    userStore.setUser(user);
+    router.push('/chat');
+    flash.success('Отлично, вы авторизованы!');
+  }
+  catch (error) {
+    flash.error(`${error}`);
+  }
 }
 
 async function registerUser(dto: IAuthDto) {
-  api.auth.register(dto)
-    .then((response) => {
-      infoMessage.success(`${response}`);
-    })
-    .catch((error) => {
-      infoMessage.error(`${error}`);
-    })
+  try {
+    const registerResponse = await api.auth.register(dto);
+    flash.success(`${registerResponse}`);
+  }
+  catch (error) {
+    flash.error(`${error}`);
+  }
 }
+
+// !!! Если перезагрузить страницу, то поле user будет пустым и вылетит ошибка
+async function checkAuthAndRedirect() {
+  const userString = localStorage.getItem('user');
+  const token = localStorage.getItem('authToken');
+
+  if (userString == undefined || token == undefined) return;
+  
+  try {
+    const isValidToken = await api.auth.validateJwt(token);
+    const user = JSON.parse(userString) as IUser;
+    
+    if (isValidToken == false) {
+      return;
+    }
+
+    userStore.setUser(user);
+    router.push('/chat');
+  }
+  catch {
+    flash.info("Пройдите процесс авторизации");
+  }
+}
+
+onMounted(() => {
+  checkAuthAndRedirect();
+})
 
 </script>
 
