@@ -72,7 +72,7 @@ import { useChatHub } from '../../hubs/chat';
 import { useUserStore } from '../../stores/user';
 import { useMessagesStore } from '../../stores/messages';
 
-const flash: MessageApi   = useMessage();
+const flash: MessageApi = useMessage();
 
 const isDrawerActive = ref(false);
 const drawerPlacement = ref<DrawerPlacement>('top');
