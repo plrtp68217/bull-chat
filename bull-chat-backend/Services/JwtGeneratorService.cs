@@ -6,7 +6,6 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace bull_chat_backend.Services
 {
@@ -15,7 +14,7 @@ namespace bull_chat_backend.Services
         private readonly ILogger<JwtGeneratorService> _logger = logger;
         private readonly JwtOptions _options = options.Value;
 
-        private const string DEFAULT_ROLE = "user";
+        private const string DEFAULT_ROLE = "default_bull";
 
         public async ValueTask<bool> ValidateTokenAsync(string jwtToken)
         {

@@ -6,6 +6,7 @@ using bull_chat_backend.Services;
 using bull_chat_backend.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using bull_chat_backend.Extensions;
+using Microsoft.AspNetCore.SignalR;
 namespace bull_chat_backend
 {
     public class Program
@@ -31,10 +32,14 @@ namespace bull_chat_backend
 
             builder.Services.AddSwaggerWithJwtAuth("Bull Chat API", "v1");
 
-            builder.Services.AddSignalR();
+            builder.Services.AddSignalR(options =>
+            {
+                options.AddFilter<ChatHubFilter>();
+            });
 
             builder.Services.AddControllers();
 
+            builder.Services.AddSingleton<IUserIdProvider, CustomUserIdProvider>();
             builder.Services.AddSingleton<TokenMapService>();
             builder.Services.AddTransient<IUserAuthenticationService, UserAuthenticationService>();
             builder.Services.AddTransient<IJwtGenerator<User>, JwtGeneratorService>();

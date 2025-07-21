@@ -7,6 +7,54 @@ using System.Text;
 
 namespace bull_chat_backend.Extensions
 {
+
+    /*
+                                                ┌───────────────────────────┐
+                                                │      HTTP-запрос          │
+                                                │  (с куки или query токен) │
+                                                └────────────┬──────────────┘
+                                                             │
+                                                             ▼
+                                                ┌───────────────────────────┐
+                                                │ UseAuthentication()       │
+                                                │  └─ JwtBearerHandler      │
+                                                │     └─ OnMessageReceived: │
+                                                │        ├─ Извлекаем токен │
+                                                │        │   ├─ из query    │
+                                                │        │   └─ или из куки │
+                                                └────────────┬──────────────┘
+                                                             │
+                                                             ▼
+                                                ┌─────────────────────────────┐
+                                                │  TokenValidationParameters  │
+                                                │  └─ Проверка:               │
+                                                │     ├─ Подпись              │
+                                                │     ├─ Issuer / Audience    │
+                                                │     ├─ Lifetime             │
+                                                └────────────┬────────────────┘
+                                                             │
+                                                             ▼
+                                                ┌─────────────────────────────┐
+                                                │       OnTokenValidated      │
+                                                └────────────┬────────────────┘
+                                                             │
+                                                             ▼
+                                                ┌───────────────────────────┐
+                                                │ UseAuthorization()        │
+                                                │  └─ [Authorize]           │
+                                                │     ├─ Проверка есть ли   │
+                                                │     │   ClaimsPrincipal   │
+                                                │     └─ Роли/Политики?     │
+                                                └────────────┬──────────────┘
+                                                             │
+                                                             ▼
+                                                ┌───────────────────────────┐
+                                                │                           │
+                                                │   Контроллер / Хендлер    │
+                                                │                           │
+                                                └───────────────────────────┘
+    */
+
     public static class JwtAuthenticationExtensions
     {
         public const string JwtCookieName = "JWT_TOKEN";
@@ -27,6 +75,8 @@ namespace bull_chat_backend.Extensions
                 .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
+                    // 2.   Проверяется что токен валидный
+                    //      Тут же и проверяется его время жизни.
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
                         ValidateIssuer = true,
@@ -42,18 +92,19 @@ namespace bull_chat_backend.Extensions
 
                     options.Events = new JwtBearerEvents
                     {
+                        // 1.   Вытаскивается токен из Url или Cookie
                         OnMessageReceived = context =>
                         {
-                            // Для SignalR - из query string
                             if (context.Request.Path.StartsWithSegments(ChatHub.HUB_URI))
                                 context.Token = context.Request.Query["access_token"];
 
-
-                            // Для обычных запросов - из куки
                             context.Token ??= context.Request.Cookies[JwtCookieName];
 
                             return Task.CompletedTask;
                         },
+                        // 3.   Токен валиден, проверятся не удален ли токен досрочно (Logout) и есть ли сессия.
+                        // 4.   Если все проверилось, то вызывается метод контроллера.
+                        //          [Authorize] Атрибут может проверить на РОЛИ.
                         OnTokenValidated = context =>
                         {
                             var jwtToken = context.HttpContext.Request.Cookies[JwtCookieName];

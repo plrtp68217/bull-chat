@@ -8,12 +8,11 @@ using System.Threading.Tasks;
 
 namespace bull_chat_backend.Services
 {
-    public class TokenMapService(ILogger<TokenMapService> logger, IUserRepository userRepository)
+    public class TokenMapService(ILogger<TokenMapService> logger)
     {
         private readonly ConcurrentDictionary<string, User> _jwtUserMap = new();
         private readonly ConcurrentDictionary<User, byte[]> _userSessionHashMap = new();
         private readonly ILogger<TokenMapService> _logger = logger;
-        private readonly IUserRepository _userRepository = userRepository;
 
         public bool AddUserSession(User user, string jwt, byte[] sessionHash)
         {
@@ -30,25 +29,55 @@ namespace bull_chat_backend.Services
             return true;
         }
 
-        public bool VerifyUserSession(User user, byte[] inputHash)
+        public string GetJwtByUser(User user)
         {
-            if (user == null ||
-                inputHash == null ||
-                User.IsEmpty(user) ||
-                inputHash.Length == 0)
-                return false;
+            if (user == null || User.IsEmpty(user))
+            {
+                _logger.LogWarning("Попытка получить JWT для невалидного пользователя");
+                return string.Empty;
+            }
 
+            var jwt = _jwtUserMap.FirstOrDefault(pair => pair.Value.Id == user.Id).Key;
+
+            if (jwt == null)
+            {
+                _logger.LogWarning("JWT для пользователя с id = {UserId} не найден", user.Id);
+            }
+            else
+            {
+                _logger.LogDebug("Найден JWT для пользователя с id = {UserId}", user.Id);
+            }
+
+            return jwt ?? string.Empty;
+        }
+        public User GetUserByJwt(string jwt)
+        {
+            if (string.IsNullOrEmpty(jwt))
+            {
+                _logger.LogWarning("Попытка получить пользователя по пустому JWT");
+                return User.Empty;
+            }
+
+            if (_jwtUserMap.TryGetValue(jwt, out var user))
+            {
+                _logger.LogDebug("Пользователь найден по JWT: {UserId}", user.Id);
+                return user;
+            }
+
+            _logger.LogWarning("JWT не найден в сессии: {Jwt}", jwt);
+            return User.Empty;
+        }
+
+        public bool VerifyUserSession(User user)
+        {
+            var userHash = user.UserSessionHash;
+            var jwt = GetJwtByUser(user);
             if (!_userSessionHashMap.TryGetValue(user, out var storedHash))
                 return false;
 
-            return CryptographicOperations.FixedTimeEquals(storedHash, inputHash);
+            return !IsJwtExpired(jwt) && CryptographicOperations.FixedTimeEquals(storedHash, userHash);
         }
 
-        public async Task<bool> VerifyUserSession(int userId, byte[] inputHash, CancellationToken token)
-        {
-            var user = await _userRepository.GetByIdAsync(userId, token);
-            return VerifyUserSession(user, inputHash);
-        }
 
         public bool RemoveUserSession(User user)
         {
