@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace bull_chat_backend.Services
 {
@@ -16,6 +17,33 @@ namespace bull_chat_backend.Services
 
         private const string DEFAULT_ROLE = "user";
 
+        public async ValueTask<bool> ValidateTokenAsync(string jwtToken)
+        {
+            try
+            {
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var key = Encoding.UTF8.GetBytes(_options.SecretKey);
+                
+                await tokenHandler.ValidateTokenAsync(jwtToken, new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = _options.Issuer,
+                    ValidAudience = _options.Audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ClockSkew = TimeSpan.Zero
+                });
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Token validation failed");
+                return false;
+            }
+        }
         public string GenerateToken(User user)
         {
             if (string.IsNullOrWhiteSpace(_options.SecretKey))
@@ -48,7 +76,7 @@ namespace bull_chat_backend.Services
                 expires: DateTime.UtcNow.AddHours(_options.ExpiredHours)
                 );
 
-            var tokenString = new JwtSecurityTokenHandler().WriteToken(token); //здесь
+            var tokenString = new JwtSecurityTokenHandler().WriteToken(token); 
             _logger.LogInformation("JWT выдан для пользователя: {UserName} (ID: {UserId})", user.Name, user.Id);
             return tokenString;
 

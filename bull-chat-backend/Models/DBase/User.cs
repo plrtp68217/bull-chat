@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using bull_chat_backend.Models.DTO;
+using Microsoft.AspNetCore.Identity;
 
 namespace bull_chat_backend.Models.DBase
 
@@ -23,5 +24,10 @@ namespace bull_chat_backend.Models.DBase
             return $"{Id:D4} {Name}";
         }
         public static bool IsEmpty(User user) => user.Id == Empty.Id;
+
+        public UserDto ToDto() 
+        {
+            return new UserDto(Id, Name);
+        } 
     }
 }

@@ -28,6 +28,7 @@ namespace bull_chat_backend
                 entity.HasKey(m => m.Id);
                 entity.Property(m => m.Date).IsRequired();
                 entity.Property(m => m.UserId).IsRequired();
+                entity.HasIndex(m => m.Date);  // Индекс на дату что бы быстро работал поиск по курсорам
 
                 entity.HasOne(m => m.User)
                     .WithMany(u => u.Messages)

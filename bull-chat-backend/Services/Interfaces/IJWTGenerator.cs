@@ -2,6 +2,7 @@
 {
     public interface IJwtGenerator<in T> where T : class
     {
+        ValueTask<bool> ValidateTokenAsync(string token);
         string GenerateToken(T user);
     }
 }

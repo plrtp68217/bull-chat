@@ -8,61 +8,55 @@ namespace bull_chat_backend.Extensions
 {
     public static class JwtAuthenticationExtensions
     {
+        public const string JwtCookieName = "JWT_TOKEN";
+
         public static IServiceCollection ConfigureJwtOptions(this IServiceCollection services, IConfiguration configuration)
         {
             services.Configure<JwtOptions>(configuration.GetSection(nameof(JwtOptions)));
             return services;
         }
 
-        public static IServiceCollection AddJwtAuthentication(
-            this IServiceCollection services,
-            IConfiguration configuration)
+        public static IServiceCollection AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
-            .AddJwtBearer(options =>
-            {
-                ConfigureJwtBearerOptions(options, configuration);
-                options.IncludeErrorDetails = true;
-            });
+            var jwtOptions = configuration.GetSection(nameof(JwtOptions)).Get<JwtOptions>()
+                ?? throw new InvalidOperationException("JWT configuration not found");
+
+
+            services
+                .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidIssuer = jwtOptions.Issuer,
+                        ValidAudience = jwtOptions.Audience,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.SecretKey)),
+                        LogValidationExceptions = true,
+                        ClockSkew = TimeSpan.Zero
+                    };
+
+                    options.Events = new JwtBearerEvents
+                    {
+                        OnMessageReceived = context =>
+                        {
+                            // Для SignalR - из query string
+                            if (context.Request.Path.StartsWithSegments(ChatHub.HUB_URI))
+                                context.Token = context.Request.Query["access_token"];
+                            
+
+                            // Для обычных запросов - из куки
+                            context.Token ??= context.Request.Cookies[JwtCookieName];
+
+                            return Task.CompletedTask;
+                        }
+                    };
+                });
 
             return services;
-        }
-
-        private static void ConfigureJwtBearerOptions(JwtBearerOptions options, IConfiguration configuration)
-        {
-            var jwtOptions = configuration.GetSection(nameof(JwtOptions)).Get<JwtOptions>();
-
-            options.TokenValidationParameters = new TokenValidationParameters
-            {
-                ValidateLifetime = true,
-                ValidateIssuerSigningKey = true,
-                ValidIssuer = jwtOptions.Issuer,
-                ValidAudience = jwtOptions.Audience,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.SecretKey)),
-
-                LogValidationExceptions = true
-            };
-
-            // Для SignalR
-            options.Events = new JwtBearerEvents
-            {
-                OnMessageReceived = context =>
-                {
-                    var accessToken = context.Request.Query["access_token"];
-                    var path = context.HttpContext.Request.Path;
-                    if (!string.IsNullOrEmpty(accessToken) &&
-                        path.StartsWithSegments(ChatHub.HUB_URI))
-                    {
-                        context.Token = accessToken;
-                    }
-                    return Task.CompletedTask;
-                }
-            };
         }
     }
 }

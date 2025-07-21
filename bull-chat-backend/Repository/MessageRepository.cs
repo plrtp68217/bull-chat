@@ -1,5 +1,6 @@
 ﻿using bull_chat_backend.Models.DBase;
 using bull_chat_backend.Models.DBase.Enum;
+using bull_chat_backend.Models.DTO;
 using bull_chat_backend.Repository.RepositoryInterfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -80,6 +81,32 @@ namespace bull_chat_backend.Repository
             await _context.Message.AddAsync(msg, token);
             await _context.SaveChangesAsync(token);
             return msg;
+        }
+
+
+        public async Task<ICollection<MessageDto>> GetLastNFromDateAsync(int count, DateTime fromDate)
+        {
+            return await _context.Message
+                .Include(m => m.User)
+                .Include(m => m.Content)
+                .Where(m => m.Date >= fromDate)
+                .OrderByDescending(m => m.Date)
+                .Take(count)
+                .OrderBy(m => m.Date)
+                .Select(m => m.ToDto())
+                .ToListAsync();
+        }
+
+        public async Task<ICollection<MessageDto>> GetDateIntervalAsync(DateTime dateStart, DateTime dateTo)
+        {
+            return await _context.Message
+                .Where(m => m.Date >= dateStart && m.Date <= dateTo)
+                .Include(m => m.User)
+                .Include(m => m.Content)
+                .OrderBy(m => m.Date)
+                .Select(m => m.ToDto())
+                .ToListAsync();
+
         }
     }
 }

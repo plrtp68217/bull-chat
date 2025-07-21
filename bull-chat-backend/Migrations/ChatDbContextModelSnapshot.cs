@@ -66,6 +66,8 @@ namespace bull_chat_backend.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Date");
+
                     b.HasIndex("UserId");
 
                     b.ToTable("Message");

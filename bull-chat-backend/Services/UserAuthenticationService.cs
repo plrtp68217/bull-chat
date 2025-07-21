@@ -1,30 +1,31 @@
-﻿using bull_chat_backend.Models.DBase;
+﻿using bull_chat_backend.Models;
+using bull_chat_backend.Models.DBase;
 using bull_chat_backend.Repository.RepositoryInterfaces;
 using bull_chat_backend.Services.Interfaces;
 
 namespace bull_chat_backend.Services
 {
-    public class UserRegistrationService : IUserRegistrationService
+    public class UserAuthenticationService : IUserAuthenticationService
     {
-        private readonly ILogger<UserRegistrationService> _logger;
-        private readonly IJwtGenerator<User> _jwtProvider;
+        private readonly ILogger<UserAuthenticationService> _logger;
+        private readonly IJwtGenerator<User> _jwtGenerator;
         private readonly IPasswordHasher _passwordHasher;
         private readonly IUserRepository _userRepository;
 
-        public UserRegistrationService(
+        public UserAuthenticationService(
             IPasswordHasher passwordHasher,
             IUserRepository userRepository,
             IJwtGenerator<User> jwtProvider,
-            ILogger<UserRegistrationService> logger)
+            ILogger<UserAuthenticationService> logger)
         {
             _logger = logger;
-            _jwtProvider = jwtProvider;
+            _jwtGenerator = jwtProvider;
             _passwordHasher = passwordHasher;
             _userRepository = userRepository;
         }
 
 
-        public async Task<ILoginResponse> LoginAsync(string name, string password, CancellationToken token)
+        public async Task<LoginResponse> LoginAsync(string name, string password, CancellationToken token)
         {
             _logger.LogDebug("Попытка залогинить бычка {name}", name);
             var user = await _userRepository.GetByNameAsync(name, token);
@@ -32,20 +33,20 @@ namespace bull_chat_backend.Services
             if (User.IsEmpty(user))
             {
                 _logger.LogError("Бычек с именем {name} не найден!", name);
-                return new LoginResponse("", User.Empty);
+                return LoginResponse.Empty;
 
             }
             _logger.LogDebug("Бычек с именем {name} найден!", name);
 
-            var isValidPassword = _passwordHasher.Verify(password, user.PasswordHash);
+            var isValidPassword = _passwordHasher.Verify(password, user.PasswordHash!);
 
             if (!isValidPassword)
             {
                 _logger.LogError($"Ой-ой кто то быканул...");
-                return new LoginResponse("", User.Empty);
+                return LoginResponse.Empty;
             }
 
-            var jwtToken = _jwtProvider.GenerateToken(user);
+            var jwtToken = _jwtGenerator.GenerateToken(user);
 
             return new LoginResponse(jwtToken, user);
         }
@@ -70,6 +71,10 @@ namespace bull_chat_backend.Services
             return user;
         }
 
+        public async ValueTask<bool> ValidateTokenAsync(string jwtToken, CancellationToken token)
+        {
+            return await _jwtGenerator.ValidateTokenAsync(jwtToken);
+        }
 
     }
 }
