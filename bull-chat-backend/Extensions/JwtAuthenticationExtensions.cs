@@ -95,8 +95,8 @@ namespace bull_chat_backend.Extensions
                         // 1.   Вытаскивается токен из Url или Cookie
                         OnMessageReceived = context =>
                         {
-                            if (context.Request.Path.StartsWithSegments(ChatHub.HUB_URI))
-                                context.Token = context.Request.Query["access_token"];
+                            //if (context.Request.Path.StartsWithSegments(ChatHub.HUB_URI))
+                            //    context.Token = context.Request.Query["access_token"];
 
                             context.Token ??= context.Request.Cookies[JwtCookieName];
 

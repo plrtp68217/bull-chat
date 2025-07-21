@@ -12,22 +12,6 @@ namespace bull_chat_backend.Models.DBase
         public string? PasswordHash { get; set; }
         public ICollection<Message> Messages { get; set; } = [];
 
-        [NotMapped]
-        public byte[] UserSessionHash
-        {
-            get
-            {
-                var combinedData = $"{Id}:{Name}:{PasswordHash}";
-                return System.Security
-                        .Cryptography.SHA256
-                        .HashData(Encoding.UTF8.GetBytes(combinedData));
-
-            }
-        }
-
-        [NotMapped]
-        public string UserSessionHashString => Convert.ToBase64String(UserSessionHash);
-
         private readonly static User _empty = new()
         {
             Id = int.MinValue,

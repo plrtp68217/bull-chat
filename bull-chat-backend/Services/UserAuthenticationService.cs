@@ -50,7 +50,7 @@ namespace bull_chat_backend.Services
             }
             var jwtToken = _jwtGenerator.GenerateToken(user);
 
-            _tokenMap.AddUserSession(user,jwtToken, user.UserSessionHash);
+            _tokenMap.AddUserSession(user,jwtToken);
 
             return new LoginResponse(jwtToken, user);
         }

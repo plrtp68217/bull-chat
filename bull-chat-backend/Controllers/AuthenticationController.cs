@@ -1,5 +1,7 @@
 ﻿using bull_chat_backend.Extensions;
+using bull_chat_backend.ModelBindings.Attributes;
 using bull_chat_backend.Models;
+using bull_chat_backend.Models.DBase;
 using bull_chat_backend.Services;
 using bull_chat_backend.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -37,12 +39,6 @@ namespace bull_chat_backend.Controllers
             }
         }
 
-        [HttpPost("validate-jwt")]
-        public IActionResult ValidateJwt([FromBody] string jwtToken)
-        {
-            var validationResult = _tokenMapService.IsTokenActive(jwtToken);
-            return Ok(validationResult);
-        }
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] UserLoginRequest request, CancellationToken token)
@@ -75,13 +71,17 @@ namespace bull_chat_backend.Controllers
         }
 
         [HttpPost("logout")]
-        public IActionResult Logout()
+        public IActionResult Logout([UserFromRequest] User user)
         {
-            // ИСПРАВИТЬ НЕМЕДЛЕННО
-            //var user = _tokenMapService.GetUserByJwt(); 
-
-            //_userAuthenticationService.Logout(user);
+            _userAuthenticationService.Logout(user);
             return Ok("Бычек ушел");
+        }
+
+        [HttpPost("validate-jwt")]
+        public IActionResult ValidateJwt([UserFromRequest] User user)
+        {
+            var validationResult = _tokenMapService.VerifyUserSession(user);
+            return Ok(validationResult);
         }
 
         [Authorize]
