@@ -38,8 +38,7 @@ namespace bull_chat_backend.Models.DBase
         [NotMapped]
         public static User Empty { get => _empty; }
         public static bool IsEmpty(User user) => user.Id == Empty.Id;
-        public UserDto ToDto(bool isAssignSessionHash = false) 
-            => new(Id, Name, isAssignSessionHash ? Convert.ToBase64String(UserSessionHash) : "");
+        public UserDto ToDto() => new(Id, Name);
         public override int GetHashCode() => HashCode.Combine(Id, Name);
         public override string ToString() => $"Id = {Id} Name = {Name}";
 

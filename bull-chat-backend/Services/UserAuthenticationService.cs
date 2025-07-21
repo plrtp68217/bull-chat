@@ -56,7 +56,6 @@ namespace bull_chat_backend.Services
         }
 
         public void Logout(User user) => _tokenMap.RemoveUserSession(user);
-        
 
         public async Task<User> RegisterAsync(string name, string password, CancellationToken token)
         {

@@ -69,19 +69,18 @@ namespace bull_chat_backend.Controllers
             return Ok(new
             {
                 Token = jwtToken,
-                User = user.ToDto(true)
+                User = user.ToDto()
 
             });
         }
 
         [HttpPost("logout")]
-        public IActionResult Logout(string clientHash)
+        public IActionResult Logout()
         {
-            HttpContext.Response.Cookies.Delete(JwtAuthenticationExtensions.JwtCookieName);
-            var rawHash = Convert.FromBase64String(clientHash);
-            var user = _tokenMapService.GetUserByUserSessionHash(rawHash);
+            // ИСПРАВИТЬ НЕМЕДЛЕННО
+            //var user = _tokenMapService.GetUserByJwt(); 
 
-            _userAuthenticationService.Logout(user);
+            //_userAuthenticationService.Logout(user);
             return Ok("Бычек ушел");
         }
 
