@@ -23,5 +23,7 @@ namespace bull_chat_backend.Models.DBase
             User = msgFrom;
             Content = new Content(text, ContentType.Text);
         }
+        // Для EF Core
+        public Message() { }
     }
 }

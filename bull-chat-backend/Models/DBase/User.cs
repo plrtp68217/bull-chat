@@ -11,7 +11,8 @@ namespace bull_chat_backend.Models.DBase
         public required string Name { get; set; }
         public string? PasswordHash { get; set; }
         public ICollection<Message> Messages { get; set; } = [];
-
+        // Для EF Core
+        public User() { }
         private readonly static User _empty = new()
         {
             Id = int.MinValue,
