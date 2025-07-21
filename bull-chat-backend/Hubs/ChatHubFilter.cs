@@ -27,17 +27,13 @@ namespace bull_chat_backend.Hubs
 
             if (string.IsNullOrEmpty(jwtToken) || !_tokenMapService.IsTokenActive(jwtToken))
             {
-                // Токен не истечен
+                // Токен истечен
                 throw new HubException("Токен недействителен или отозван (бычек спекся)");
             }
 
             // Привязываем текущего юзера в Items
             var user = _tokenMapService.GetUserByJwt(jwtToken);
-            if (!_tokenMapService.VerifyUserSession(user)) 
-            {
-                // Не был произведен Logout
-                throw new HubException("Токен недействителен или отозван");
-            }
+            
             if (user != null)
             {
                 context.Context.Items["CurrentUser"] = user;
