@@ -84,7 +84,7 @@ namespace bull_chat_backend.Repository
         }
 
 
-        public async Task<ICollection<MessageDto>> GetLastNFromDateAsync(int count, DateTime fromDate)
+        public async Task<ICollection<MessageDto>> GetLastNFromDateAsync(int count, DateTime fromDate, CancellationToken token)
         {
             return await _context.Message
                 .Include(m => m.User)
@@ -94,10 +94,10 @@ namespace bull_chat_backend.Repository
                 .Take(count)
                 .OrderBy(m => m.Date)
                 .Select(m => m.ToDto())
-                .ToListAsync();
+                .ToListAsync(token);
         }
 
-        public async Task<ICollection<MessageDto>> GetDateIntervalAsync(DateTime dateStart, DateTime dateTo)
+        public async Task<ICollection<MessageDto>> GetDateIntervalAsync(DateTime dateStart, DateTime dateTo, CancellationToken token)
         {
             return await _context.Message
                 .Where(m => m.Date >= dateStart && m.Date <= dateTo)
@@ -105,8 +105,14 @@ namespace bull_chat_backend.Repository
                 .Include(m => m.Content)
                 .OrderBy(m => m.Date)
                 .Select(m => m.ToDto())
-                .ToListAsync();
+                .ToListAsync(token);
 
+        }
+
+        public async ValueTask<DateTime> LastMessageDate(CancellationToken token)
+        {
+            var lastMessage = await _context.Message.LastAsync(token);
+            return lastMessage.Date;
         }
     }
 }

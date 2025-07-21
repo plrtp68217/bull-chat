@@ -19,33 +19,39 @@ namespace bull_chat_backend.Controllers
             _messageRepository = messageRepository;
         }
 
-        
-        [HttpPost("n-from-date")]
-        public async Task<IActionResult> LastNFromDate([FromBody] LastNFromRequest request)
+
+        [HttpPost("last-n-from-date")]
+        public async Task<IActionResult> LastNFromDate([FromBody] LastNFromRequest request, CancellationToken token)
         {
             var normalizedDate = request.DateFrom.Date;
-            var messages = await _messageRepository.GetLastNFromDateAsync(request.Count, normalizedDate);
+            var messages = await _messageRepository.GetLastNFromDateAsync(request.Count, normalizedDate, token);
             return Ok(messages);
         }
 
         [HttpPost("between-dates")]
-        public async Task<IActionResult> BetweenDate([FromBody] DateRangeRequest range)
+        public async Task<IActionResult> BetweenDate([FromBody] DateRangeRequest range, CancellationToken token)
         {
             var dateStart = range.DateStart.Date;
             var dateTo = range.DateEnd.Date.AddDays(1).AddTicks(-1);
 
-            var messages = await _messageRepository.GetDateIntervalAsync(dateStart, dateTo);
+            var messages = await _messageRepository.GetDateIntervalAsync(dateStart, dateTo, token);
             return Ok(messages);
         }
 
         [HttpPost("on-date")]
-        public async Task<IActionResult> OnDate([FromBody] DateTime date)
+        public async Task<IActionResult> OnDate([FromBody] DateTime date, CancellationToken token)
         {
-            // Отправлять так: new Date().toISOString()
             var dateStart = date.Date;
             var dateTo = dateStart.AddDays(1);
 
-            var messages = await _messageRepository.GetDateIntervalAsync(dateStart, dateTo);
+            var messages = await _messageRepository.GetDateIntervalAsync(dateStart, dateTo, token);
+            return Ok(messages);
+        }
+
+        [HttpPost("last-message-date")]
+        public async Task<IActionResult> LastMessageDate(CancellationToken token)
+        {
+            var messages = await _messageRepository.LastMessageDate(token);
             return Ok(messages);
         }
     }
