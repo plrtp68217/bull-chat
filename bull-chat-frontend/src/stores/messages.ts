@@ -17,6 +17,9 @@ export const useMessagesStore = defineStore('messages', {
     },
     addMessage(message: IMessage) {
       this.messages?.push(message)
+    },
+    clearMessages() {
+      this.messages?.splice(0, this.messages.length);
     }
   }
 });

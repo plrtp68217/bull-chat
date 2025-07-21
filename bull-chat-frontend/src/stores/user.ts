@@ -11,7 +11,6 @@ export const useUserStore = defineStore('user', {
   getters: {
     getUserId: (state) => state.user!.id,
     getName: (state) => state.user!.name,
-    getClientHash: (state) => state.user!.clientHash,
   },
 
   actions: {
