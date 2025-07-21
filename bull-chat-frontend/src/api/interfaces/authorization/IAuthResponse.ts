@@ -1,7 +1,6 @@
+import type { IUser } from "../../../stores/interfaces/IUser";
+
 export interface IAuthResponse {
   token: string,
-  user: {
-    id: number,
-    name: string
-  }
+  user: IUser
 }
