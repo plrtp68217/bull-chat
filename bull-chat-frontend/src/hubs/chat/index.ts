@@ -20,7 +20,7 @@ export const useChatHub = () => {
       flash.success("Подключение установлено!")
     }
     catch (error) {
-      flash.success("Подключение разорвано, попытка переподключения...")
+      flash.error("Подключение разорвано, попытка переподключения...")
       setTimeout(() => start(token, flash), 5000);
     }
   };
@@ -36,11 +36,11 @@ export const useChatHub = () => {
   };
 
   const invoke: HubInvokeEvents = {
-    SendMessage: async (userId: number, content: string) => {
+    SendMessage: async (userId: string, content: string) => {
       if (connection.value?.state === signalR.HubConnectionState.Connected) {
         await connection.value.invoke('SendMessage', userId, content);
       }
-    },    
+    },
   };
 
   return {
