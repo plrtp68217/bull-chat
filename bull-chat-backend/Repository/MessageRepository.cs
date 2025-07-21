@@ -70,15 +70,7 @@ namespace bull_chat_backend.Repository
         public async Task<Message> AddAsync(User user, string item, ContentType contentType, CancellationToken token)
         {
             _context.User.Attach(user);
-            var msg = new Message()
-            {
-                User = user,
-                Content = new()
-                {
-                    ContentType = contentType,
-                    Item = item
-                }
-            };
+            var msg = new Message(user, item);
             await _context.Message.AddAsync(msg, token);
             await _context.SaveChangesAsync(token);
             return msg;

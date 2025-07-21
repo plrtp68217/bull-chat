@@ -19,16 +19,23 @@ namespace bull_chat_backend.Hubs
 
         public async Task SendMessage(string content)
         {
+            if (string.IsNullOrWhiteSpace(content))
+                throw new HubException("Сообщение не может быть пустым");
+
             if (!Context.Items.TryGetValue(CURRENT_USER, out var currentUserObj) || currentUserObj is not User currentUser)
-                throw new HubException("Пользователь не найден в контексте");
+                throw new HubException("Бычек не найден в контексте подключения");
 
             _logger.LogDebug("От бычка с именем {BullName} пришло {ContentText}", currentUser.Name, content);
 
             var token = Context.ConnectionAborted;
             var message = await _messageRepository.AddAsync(currentUser, content, Models.DBase.Enum.ContentType.Text, token);
-            var messageDto = message.ToDto();
 
-            await Clients.All.ReceiveMessage(messageDto);
+            token.ThrowIfCancellationRequested();
+
+            var messageDto = message.ToDto();
+            var msgAuthor = Context.ConnectionId;
+
+            await Clients.All.ReceiveMessage(messageDto.WithAuthorFlag(Context.ConnectionId == msgAuthor));
         }
     }
 }

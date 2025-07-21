@@ -1,20 +1,23 @@
-﻿using bull_chat_backend.Models.DBase;
-
-namespace bull_chat_backend.Models.DTO
+﻿namespace bull_chat_backend.Models.DTO
 {
     public class MessageDto
     {
-        public MessageDto() { }
-        public MessageDto(DateTime date, UserDto? user, ContentDto? content)
+        public MessageDto(DateTime date, UserDto? user, ContentDto? content, bool isAuthor = false)
         {
             Date = date;
             User = user;
             Content = content;
+            IsAuthor = isAuthor;
         }
 
-        public DateTime Date { get; set; }
-        public UserDto? User { get; set; }
-        public ContentDto? Content { get; set; }
+        public MessageDto WithAuthorFlag(bool isAuthor)
+        {
+            return new MessageDto(Date, User, Content, isAuthor);
+        }
 
+        public bool IsAuthor { get; }
+        public DateTime Date { get; }
+        public UserDto? User { get; }
+        public ContentDto? Content { get; }
     }
 }

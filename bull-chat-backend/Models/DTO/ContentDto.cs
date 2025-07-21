@@ -1,14 +1,10 @@
-﻿using bull_chat_backend.Models.DBase;
+﻿using bull_chat_backend.Models.DBase.Enum;
 
 namespace bull_chat_backend.Models.DTO
 {
-    public class ContentDto
+    public class ContentDto(string item, ContentType content)
     {
-        public string Item { get; set; }
-
-        public ContentDto(string item)
-        {
-            Item = item;
-        }
+        public string Item { get; } = item;
+        public ContentType Content { get; } = content;
     }
 }
