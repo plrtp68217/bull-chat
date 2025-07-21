@@ -33,9 +33,9 @@ namespace bull_chat_backend.Hubs
             token.ThrowIfCancellationRequested();
 
             var messageDto = message.ToDto();
-            var msgAuthor = Context.ConnectionId;
-
-            await Clients.All.ReceiveMessage(messageDto.WithAuthorFlag(Context.ConnectionId == msgAuthor));
+            
+            await Clients.AllExcept(Context.ConnectionId).ReceiveMessage(messageDto);
+            await Clients.Caller.ReceiveMessage(messageDto.WithAuthorFlag(true));
         }
     }
 }
