@@ -1,9 +1,8 @@
 import * as signalR from '@microsoft/signalr';
 
-export const createHubConnection = (token: string): signalR.HubConnection  => {
+export const createHubConnection = (): signalR.HubConnection  => {
   return new signalR.HubConnectionBuilder()
     .withUrl('http://localhost:5081/chatHub', {
-      accessTokenFactory: () => token,
       skipNegotiation: true,
       transport: signalR.HttpTransportType.WebSockets
     })
