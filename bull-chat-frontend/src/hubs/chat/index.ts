@@ -36,9 +36,11 @@ export const useChatHub = () => {
   };
 
   const invoke: HubInvokeEvents = {
-    SendMessage: async (userId: string, content: string) => {
+    SendMessage: async (content: string) => {
       if (connection.value?.state === signalR.HubConnectionState.Connected) {
-        await connection.value.invoke('SendMessage', userId, content);
+        await connection.value.invoke('SendMessage', content);
+        //тут удалил id, не надо потому что
+        // но шлется какая то херня, но валидация работает
       }
     },
   };
