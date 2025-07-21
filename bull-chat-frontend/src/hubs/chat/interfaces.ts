@@ -4,6 +4,6 @@ export interface IMessageDto {
 }
 
 export interface HubInvokeEvents {
-  SendMessage: (userId: string, content: string) => Promise<void>;
+  SendMessage: (content: string) => Promise<void>;
 }
 

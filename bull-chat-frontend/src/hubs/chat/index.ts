@@ -9,9 +9,9 @@ export const useChatHub = () => {
   const connection = ref<signalR.HubConnection | null>(null);
   const isConnected = ref(false);
 
-  const start = async (token: string, flash: MessageApi) => {
+  const start = async (flash: MessageApi) => {
     try {
-      connection.value = createHubConnection(token);
+      connection.value = createHubConnection();
       setupListeners(connection.value as signalR.HubConnection);
       
       await connection.value.start();
@@ -21,7 +21,7 @@ export const useChatHub = () => {
     }
     catch (error) {
       flash.error("Подключение разорвано, попытка переподключения...")
-      setTimeout(() => start(token, flash), 5000);
+      setTimeout(() => start(flash), 5000);
     }
   };
 
@@ -39,8 +39,6 @@ export const useChatHub = () => {
     SendMessage: async (content: string) => {
       if (connection.value?.state === signalR.HubConnectionState.Connected) {
         await connection.value.invoke('SendMessage', content);
-        //тут удалил id, не надо потому что
-        // но шлется какая то херня, но валидация работает
       }
     },
   };
