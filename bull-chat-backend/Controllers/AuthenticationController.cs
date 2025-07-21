@@ -10,9 +10,9 @@ namespace bull_chat_backend.Controllers
 {
     [Route("api/[controller]/")]
     [ApiController]
-    public class AuthenticationController(ILogger<AuthenticationController> logger, 
+    public class AuthenticationController(ILogger<AuthenticationController> logger,
         IUserAuthenticationService userRegistrationService,
-        TokenMapService tokenMapService, 
+        TokenMapService tokenMapService,
         IConfiguration configuration) : ControllerBase
     {
         private readonly ILogger<AuthenticationController> _logger = logger;
@@ -69,8 +69,8 @@ namespace bull_chat_backend.Controllers
             return Ok(new
             {
                 Token = jwtToken,
-                User = user.ToDto(),
-                ClientHash = Convert.ToBase64String(user.UserSessionHash)
+                User = user.ToDto(true)
+
             });
         }
 

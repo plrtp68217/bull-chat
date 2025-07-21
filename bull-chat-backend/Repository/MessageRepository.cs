@@ -69,6 +69,7 @@ namespace bull_chat_backend.Repository
 
         public async Task<Message> AddAsync(User user, string item, ContentType contentType, CancellationToken token)
         {
+            _context.User.Attach(user);
             var msg = new Message()
             {
                 User = user,
@@ -82,7 +83,7 @@ namespace bull_chat_backend.Repository
             await _context.SaveChangesAsync(token);
             return msg;
         }
-
+       
 
         public async Task<ICollection<MessageDto>> GetLastNFromDateAsync(int count, DateTime fromDate, CancellationToken token)
         {

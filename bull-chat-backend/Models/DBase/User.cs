@@ -13,9 +13,9 @@ namespace bull_chat_backend.Models.DBase
         public ICollection<Message> Messages { get; set; } = [];
 
         [NotMapped]
-        public byte[] UserSessionHash 
+        public byte[] UserSessionHash
         {
-            get 
+            get
             {
                 var combinedData = $"{Id}:{Name}:{PasswordHash}";
                 return System.Security
@@ -25,6 +25,9 @@ namespace bull_chat_backend.Models.DBase
             }
         }
 
+        [NotMapped]
+        public string UserSessionHashString => Convert.ToBase64String(UserSessionHash);
+
         private readonly static User _empty = new()
         {
             Id = int.MinValue,
@@ -32,11 +35,13 @@ namespace bull_chat_backend.Models.DBase
             PasswordHash = string.Empty,
             Messages = []
         };
+        [NotMapped]
         public static User Empty { get => _empty; }
         public static bool IsEmpty(User user) => user.Id == Empty.Id;
-        public UserDto ToDto() => new UserDto(Id, Name);
+        public UserDto ToDto(bool isAssignSessionHash = false) 
+            => new(Id, Name, isAssignSessionHash ? Convert.ToBase64String(UserSessionHash) : "");
         public override int GetHashCode() => HashCode.Combine(Id, Name);
-        public override string ToString() =>$"Id = {Id} Name = {Name}";
+        public override string ToString() => $"Id = {Id} Name = {Name}";
 
     }
 }

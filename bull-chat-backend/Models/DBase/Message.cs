@@ -26,7 +26,7 @@ namespace bull_chat_backend.Models.DBase
             return new MessageDto()
             {
                 Date = Date,
-                User = new UserDto(User!.Id, User.Name),
+                User = User.ToDto(),
                 Content = new ContentDto(Content!.Item!)
             };
         }
