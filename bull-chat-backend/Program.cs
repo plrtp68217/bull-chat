@@ -35,6 +35,7 @@ namespace bull_chat_backend
 
             builder.Services.AddControllers();
 
+            builder.Services.AddSingleton<TokenMapService>();
             builder.Services.AddTransient<IUserAuthenticationService, UserAuthenticationService>();
             builder.Services.AddTransient<IJwtGenerator<User>, JwtGeneratorService>();
             builder.Services.AddTransient<IUserRepository, UserRepository>();

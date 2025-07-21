@@ -8,5 +8,6 @@ namespace bull_chat_backend.Services.Interfaces
         Task<LoginResponse> LoginAsync(string name, string password, CancellationToken token);
         ValueTask<bool> ValidateTokenAsync(string jwtToken, CancellationToken token);
         Task<User> RegisterAsync(string name, string password, CancellationToken token);
+        public void Logout(User user);
     }
 }

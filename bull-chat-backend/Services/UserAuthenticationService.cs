@@ -9,6 +9,7 @@ namespace bull_chat_backend.Services
     {
         private readonly ILogger<UserAuthenticationService> _logger;
         private readonly IJwtGenerator<User> _jwtGenerator;
+        private readonly TokenMapService _tokenMap;
         private readonly IPasswordHasher _passwordHasher;
         private readonly IUserRepository _userRepository;
 
@@ -16,10 +17,12 @@ namespace bull_chat_backend.Services
             IPasswordHasher passwordHasher,
             IUserRepository userRepository,
             IJwtGenerator<User> jwtProvider,
+            TokenMapService tokenMap,
             ILogger<UserAuthenticationService> logger)
         {
             _logger = logger;
             _jwtGenerator = jwtProvider;
+            _tokenMap = tokenMap;
             _passwordHasher = passwordHasher;
             _userRepository = userRepository;
         }
@@ -38,25 +41,29 @@ namespace bull_chat_backend.Services
             }
             _logger.LogDebug("Бычек с именем {name} найден!", name);
 
-            var isValidPassword = _passwordHasher.Verify(password, user.PasswordHash!);
+            var isValidPassword = _passwordHasher.VerifySHA256(password, user.PasswordHash!);
 
             if (!isValidPassword)
             {
                 _logger.LogError($"Ой-ой кто то быканул...");
                 return LoginResponse.Empty;
             }
-
             var jwtToken = _jwtGenerator.GenerateToken(user);
+
+            _tokenMap.AddUserSession(user,jwtToken, user.UserSessionHash);
 
             return new LoginResponse(jwtToken, user);
         }
+
+        public void Logout(User user) => _tokenMap.RemoveUserSession(user);
+        
 
         public async Task<User> RegisterAsync(string name, string password, CancellationToken token)
         {
             if (await _userRepository.IsExistByName(name, token))
                 throw new InvalidDataException($"Бычек с именем {nameof(name)} уже в стойле");
 
-            var hash = _passwordHasher.GetHash(password);
+            var hash = _passwordHasher.GetHashSHA256(password);
 
             var user = new User()
             {

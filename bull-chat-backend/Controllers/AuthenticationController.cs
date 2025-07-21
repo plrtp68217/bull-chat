@@ -1,25 +1,24 @@
 ﻿using bull_chat_backend.Extensions;
 using bull_chat_backend.Models;
+using bull_chat_backend.Services;
 using bull_chat_backend.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Text;
 
 namespace bull_chat_backend.Controllers
 {
     [Route("api/[controller]/")]
     [ApiController]
-    public class AuthenticationController : ControllerBase
+    public class AuthenticationController(ILogger<AuthenticationController> logger, 
+        IUserAuthenticationService userRegistrationService,
+        TokenMapService tokenMapService, 
+        IConfiguration configuration) : ControllerBase
     {
-        private readonly ILogger<AuthenticationController> _logger;
-        private readonly IUserAuthenticationService _userAuthenticationService;
-        private readonly IConfiguration _configuration;
-
-        public AuthenticationController(ILogger<AuthenticationController> logger, IUserAuthenticationService userRegistrationService, IConfiguration configuration)
-        {
-            _logger = logger;
-            _userAuthenticationService = userRegistrationService;
-            _configuration = configuration;
-        }
+        private readonly ILogger<AuthenticationController> _logger = logger;
+        private readonly IUserAuthenticationService _userAuthenticationService = userRegistrationService;
+        private readonly TokenMapService _tokenMapService = tokenMapService;
+        private readonly IConfiguration _configuration = configuration;
 
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] UserRegisterRequest request, CancellationToken token)
@@ -39,9 +38,9 @@ namespace bull_chat_backend.Controllers
         }
 
         [HttpPost("validate-jwt")]
-        public async Task<IActionResult> ValidateJwt([FromBody] string jwtToken, CancellationToken token)
+        public IActionResult ValidateJwt([FromBody] string jwtToken)
         {
-            var validationResult = await _userAuthenticationService.ValidateTokenAsync(jwtToken, token);
+            var validationResult = _tokenMapService.IsTokenActive(jwtToken);
             return Ok(validationResult);
         }
 
@@ -69,19 +68,20 @@ namespace bull_chat_backend.Controllers
                 });
             return Ok(new
             {
-                Token = $"{jwtToken}",
-                User = user.ToDto()
+                Token = jwtToken,
+                User = user.ToDto(),
+                ClientHash = Convert.ToBase64String(user.UserSessionHash)
             });
         }
 
         [HttpPost("logout")]
-        public IActionResult Logout()
+        public IActionResult Logout(string clientHash)
         {
-            /*
-             * TODO:    Инвалидировать токен.
-             *          Сейчас токен бычка можно скопировать и войти по нему
-             */
             HttpContext.Response.Cookies.Delete(JwtAuthenticationExtensions.JwtCookieName);
+            var rawHash = Convert.FromBase64String(clientHash);
+            var user = _tokenMapService.GetUserByUserSessionHash(rawHash);
+
+            _userAuthenticationService.Logout(user);
             return Ok("Бычек ушел");
         }
 

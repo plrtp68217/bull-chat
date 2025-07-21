@@ -2,9 +2,9 @@
 
 namespace bull_chat_backend.Hubs
 {
-    public interface IChatHub 
+    public interface IChatHub
     {
-        Task SendMessage(int userId, string content);
+        Task SendMessage(byte[] userHash, int userId, string content);
         Task ReceiveMessage(MessageDto messageDto);
         //Task NotifyTyping(string user);
         //Task GetConnectedUsers();
