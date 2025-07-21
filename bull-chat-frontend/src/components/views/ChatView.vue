@@ -108,9 +108,7 @@ function activateDrawer() {
 
 watch(
   () => messagesStore.messages?.length,
-  () => {
-    scrollToBottom()
-  },
+  (_old, _new) => scrollToBottom()
 )
 
 onMounted(async () => {
@@ -126,16 +124,10 @@ onUnmounted(async () => {
 <style scoped>
 .root {
   height: 100%;
-  width: 1100px;
   margin: auto;
   display: flex;
   flex-direction: column;
-}
-
-@media (max-width: 1100px) {
-  .root {
-    width: auto;
-  }
+  max-width: 1100px;
 }
 
 .chat-header {
