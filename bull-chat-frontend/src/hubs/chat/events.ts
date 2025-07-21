@@ -5,7 +5,6 @@ export const setupListeners = (connection: signalR.HubConnection) => {
   connection.on('ReceiveMessage', (message: IMessage) => {
     const messages = useMessagesStore();
     messages.addMessage(message);
-
   });
 
   connection.onclose((error) => {

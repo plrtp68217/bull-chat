@@ -96,9 +96,9 @@ const sendMessage = () => {
 
 async function logOut() {
   try {
-    const logoutResponse = await api.auth.logout();
+    await api.auth.logout();
+    await stop(flash);
     router.push('/');
-    flash.success(logoutResponse);
   }
   catch (error) {
     flash.error(`${error}`);
