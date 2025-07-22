@@ -7,7 +7,7 @@ namespace bull_chat_backend.Models.DBase
     public class Message
     {
         public int Id { get; set; }
-        public DateTime Date { get; set; } = DateTime.UtcNow;
+        public DateTime Date { get; set; } /*= DateTime.UtcNow;*/
 
         public int UserId { get; set; }
 
