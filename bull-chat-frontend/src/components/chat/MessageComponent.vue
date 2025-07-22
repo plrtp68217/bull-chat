@@ -18,18 +18,24 @@
 </template>
 
 <script setup lang="ts">
-import type { PropType } from 'vue'
+import { onMounted, type PropType } from 'vue'
 import type { IMessage } from '../../stores/interfaces/IMessage';
 import { useUserStore } from '../../stores/user';
 
 const userStore = useUserStore();
 
-defineProps({
+const emit = defineEmits(['messageDateEvent']);
+
+const props = defineProps({
   message: {
     type: Object as PropType<IMessage>,
     required: true
   },
 });
+
+onMounted(() => {
+  emit('messageDateEvent', props.message.date)
+})
 </script>
 
 <style scoped>
