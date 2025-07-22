@@ -35,11 +35,11 @@ namespace bull_chat_backend
 
             builder.Services.AddSignalR(options =>
             {
-                options.AddFilter<ChatHubFilter>();
+                options.AddFilter<ChatHubAuthenticationFilter>();
             });
 
             builder.Services.AddControllers();
-            builder.Services.AddSingleton<IUserIdProvider, CustomUserIdProvider>();
+            builder.Services.AddSingleton<IUserIdProvider, ChatHubUserIdProvider>();
             builder.Services.AddSingleton<TokenMapService>();
             builder.Services.AddTransient<IUserAuthenticationService, UserAuthenticationService>();
             builder.Services.AddTransient<IJwtGenerator<User>, JwtGeneratorService>();
