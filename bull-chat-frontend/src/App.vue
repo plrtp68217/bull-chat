@@ -17,15 +17,15 @@ import { NConfigProvider, NMessageProvider, darkTheme } from 'naive-ui'
 import router from '../router/router';
 import { api } from './api';
 import { onMounted } from 'vue';
+import { useUserStore } from './stores/user';
+
+const userStore = useUserStore();
 
 async function checkAuthAndRedirect() {
   try {
-    const isValidToken = await api.auth.validateJwt();
+    const user = await api.auth.validate();
+    userStore.setUser(user);
     
-    if (isValidToken == false) {
-      return;
-    }
-
     router.push('/chat');
   }
   catch {

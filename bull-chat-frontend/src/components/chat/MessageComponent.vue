@@ -1,7 +1,6 @@
 <template>
 
-  <div :class="['message-bubble', message.isAuthor ? 'me' : 'not_me']">
-
+  <div :class="['message-bubble', message.user.id == userStore.getUserId ? 'me' : 'not_me']">
     <div class="message-author">
       {{ message.user.name }}
     </div>
@@ -21,6 +20,9 @@
 <script setup lang="ts">
 import type { PropType } from 'vue'
 import type { IMessage } from '../../stores/interfaces/IMessage';
+import { useUserStore } from '../../stores/user';
+
+const userStore = useUserStore();
 
 defineProps({
   message: {
