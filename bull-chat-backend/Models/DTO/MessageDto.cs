@@ -7,15 +7,8 @@
             Date = date;
             User = user;
             Content = content;
-            IsAuthor = isAuthor;
         }
 
-        public MessageDto WithAuthorFlag(bool isAuthor)
-        {
-            return new MessageDto(Date, User, Content, isAuthor);
-        }
-
-        public bool IsAuthor { get; }
         public DateTime Date { get; }
         public UserDto? User { get; }
         public ContentDto? Content { get; }
