@@ -14,16 +14,19 @@ namespace bull_chat_backend.Models.DBase
         public User User { get; set; }
         public Content Content { get; set; }
 
-        public MessageDto ToDto() => new MessageDto(Date, User.ToDto(), Content.ToDto());
-        [NotMapped] public static Message Empty => new(User.Empty, string.Empty);
-        public static bool IsEmpty(Message msg) => User.IsEmpty(msg.User!) && Content.IsEmpty(msg.Content!);
+        // Для EF Core
+        public Message() { }
         public Message(User msgFrom, string text)
         {
             //Пока так, только текст.
             User = msgFrom;
             Content = new Content(text, ContentType.Text);
         }
-        // Для EF Core
-        public Message() { }
+        public MessageDto ToDto() => new(Date, User.ToDto(), Content.ToDto());
+        public static bool IsEmpty(Message msg) => User.IsEmpty(msg.User!) && Content.IsEmpty(msg.Content!);
+
+        private static readonly Message _empty = new(User.Empty, string.Empty);
+        [NotMapped] public static Message Empty => _empty;
+
     }
 }

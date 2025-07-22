@@ -12,9 +12,7 @@ namespace bull_chat_backend.Models.DBase
         public int MessageId { get; set; }
         public Message? Message { get; set; }
 
-        public static bool IsEmpty(Content c) => c.ContentType == Enum.ContentType.Unknown;
 
-        private readonly static Content _empty = new(string.Empty, Enum.ContentType.Unknown);
         // Для EF Core
         public Content() { }
         public Content(string text, ContentType contentType)
@@ -22,10 +20,12 @@ namespace bull_chat_backend.Models.DBase
             ContentType = contentType;
             Item = text;
         }
+        public static bool IsEmpty(Content c) => c.ContentType == Enum.ContentType.Unknown;
+        public ContentDto ToDto() => new(Item, ContentType);
 
+        private readonly static Content _empty = new(string.Empty, Enum.ContentType.Unknown);
         [NotMapped] public static Content Empty => _empty;
 
-        public ContentDto ToDto() => new(Item, ContentType);
     }
 
 }

@@ -64,9 +64,7 @@ namespace bull_chat_backend.Controllers
                 });
             return Ok(new
             {
-                Token = jwtToken,
                 User = user.ToDto()
-
             });
         }
 
@@ -77,11 +75,14 @@ namespace bull_chat_backend.Controllers
             return Ok("Бычек ушел");
         }
 
-        [HttpPost("validate-jwt")]
+        [HttpPost("validate")]
         public IActionResult ValidateJwt([UserFromRequest] User user)
         {
-            var validationResult = _tokenMapService.VerifyUserSession(user);
-            return Ok(validationResult);
+            _tokenMapService.VerifyUserSession(user);
+            return Ok(new
+            {
+                User = user.ToDto()
+            });
         }
 
         [Authorize]
