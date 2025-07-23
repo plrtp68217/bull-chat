@@ -7,5 +7,6 @@ namespace bull_chat_backend.Repository.RepositoryInterfaces
     {
         ValueTask<Message> LastMessage(CancellationToken token);
         Task<IList<MessageDto>> GetPagedMessages(int cursorIndex, int pageSize, CancellationToken token);
+        Task<IList<MessageDto>> GetPagedMessages(DateTime cursorIndex, int pageSize, CancellationToken token);
     }
 }

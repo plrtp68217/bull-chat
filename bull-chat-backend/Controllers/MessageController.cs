@@ -29,7 +29,7 @@ namespace bull_chat_backend.Controllers
             return Ok(messages);
         }
 
-        [HttpPost("next-message-page")]
+        [HttpPost("next-message-page-index")]
         public async Task<IActionResult> NextMessagePage([FromBody] int? messageId  ,CancellationToken token)
         {
             if (!messageId.HasValue) 
@@ -40,6 +40,19 @@ namespace bull_chat_backend.Controllers
 
             const int PAGE_SIZE = 100;
             var messages = await _messageRepository.GetPagedMessages(messageId.Value, PAGE_SIZE, token);
+            return Ok(messages);
+        }
+        [HttpPost("next-message-page-date")]
+        public async Task<IActionResult> NextMessagePageDate([FromBody] DateTime? messageDate, CancellationToken token)
+        {
+            if (!messageDate.HasValue)
+            {
+                var lastMessage = await _messageRepository.LastMessage(token);
+                messageDate = lastMessage.Date;
+            }
+
+            const int PAGE_SIZE = 100;
+            var messages = await _messageRepository.GetPagedMessages(messageDate.Value, PAGE_SIZE, token);
             return Ok(messages);
         }
         #region mock
