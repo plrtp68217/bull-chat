@@ -34,7 +34,7 @@
 
       <div class="messages-container" ref="messagesContainer">
 
-        <div class="load-more-trigger">
+        <div v-if="triggerIsVisible" class="load-more-trigger">
           <n-spin size="small" />
         </div>
 
@@ -88,6 +88,8 @@ const { initObserver, disconnectObserver } = useObserver(
   },
 );
 
+const triggerIsVisible = ref(true);
+
 const isObserverDetected = ref(false);
 
 const flash: MessageApi = useMessage();
@@ -134,6 +136,12 @@ async function updateMessagesContainer() {
   try {
     const olderMessageId: number = messagesStore.messages[0].id;
     const oldMessages = await api.messages.getMessages(olderMessageId);
+
+    if (oldMessages.length == 0) {
+      triggerIsVisible.value = false;
+      return;
+    }
+
     messagesStore.prependMessages(oldMessages);
 
     await nextTick();

@@ -31,6 +31,7 @@ namespace bull_chat_backend.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ContentType")
+                        .IsRequired()
                         .HasMaxLength(8)
                         .HasColumnType("character varying(8)");
 
@@ -87,6 +88,7 @@ namespace bull_chat_backend.Migrations
                         .HasColumnType("character varying(100)");
 
                     b.Property<string>("PasswordHash")
+                        .IsRequired()
                         .HasMaxLength(300)
                         .HasColumnType("character varying(300)");
 
