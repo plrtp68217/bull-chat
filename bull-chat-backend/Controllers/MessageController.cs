@@ -30,7 +30,7 @@ namespace bull_chat_backend.Controllers
         }
 
         [HttpPost("next-message-page")]
-        public async Task<IActionResult> LastMessageDate(int? messageId  ,CancellationToken token)
+        public async Task<IActionResult> NextMessagePage([FromBody] int? messageId  ,CancellationToken token)
         {
             if (!messageId.HasValue) 
             {
