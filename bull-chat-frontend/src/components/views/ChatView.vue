@@ -81,7 +81,7 @@ import { api } from '../../api';
 
 import useObserver from '../../observer/index.ts';
 
-const { triggerElement, initObserver, disconnectObserver } = useObserver(
+const { initObserver, disconnectObserver } = useObserver(
   '.load-more-trigger',
   {
     onVisible: updateMessagesContainer,
@@ -100,6 +100,8 @@ const newContent = ref('');
 const messagesStore = useMessagesStore();
 
 const messagesContainer = ref<HTMLElement | null>(null);
+const isMessagesContainerAtBottom = ref(true)
+
 const previousMessageDate = ref<Date | null>(null);
 
 const { start, stop, invoke } = useChatHub();
@@ -181,28 +183,42 @@ function scrollToBottom() {
   });
 };
 
+const checkScrollPosition = () => {
+  if (!messagesContainer.value) return
+  
+  const { scrollTop, scrollHeight, clientHeight } = messagesContainer.value
+  const threshold = 200;
+  isMessagesContainerAtBottom.value = scrollHeight - (scrollTop + clientHeight) < threshold
+}
+
 function activateDrawer() {
   isDrawerActive.value = true
 }
 
-// Переделать, так как при загрузке старых сообщений он тоже будет скроллить вниз
-
-// watch(
-//   () => messagesStore.getMessages?.length,
-//   (_old, _new) => scrollToBottom()
-// )
+watch(
+  () => messagesStore.getMessages?.length,
+  (_old, _new) => {
+    if (isMessagesContainerAtBottom.value) {
+      scrollToBottom()
+    }
+  }
+)
 
 onMounted(async () => {
   try {
     await start(flash);
     const messages = await api.messages.getMessages({date: null});
     messagesStore.appendMessages(messages);
-    
+
     initObserver();
     scrollToBottom();
   }
   catch (error) {
     flash.error(`${error}`);
+  }
+
+  if (messagesContainer.value) {
+    messagesContainer.value.addEventListener('scroll', checkScrollPosition)
   }
 });
 
@@ -216,6 +232,10 @@ onUnmounted(async () => {
 
   disconnectObserver();
   messagesStore.clearMessages();
+
+  if (messagesContainer.value) {
+    messagesContainer.value.removeEventListener('scroll', checkScrollPosition)
+  }
 })
 
 </script>
