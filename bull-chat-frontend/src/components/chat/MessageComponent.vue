@@ -75,8 +75,8 @@ function datesIsNotEquals(date1: Date, date2: Date) {
   color: white;
   padding: 2px 4px;
   margin: 8px 0;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(240, 240, 240, 0.171);
+  border-radius: 50px;
+  background-color: #ffffff17;
 }
 
 .message-bubble {
