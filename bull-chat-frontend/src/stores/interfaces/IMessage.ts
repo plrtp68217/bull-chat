@@ -14,5 +14,4 @@ export interface IMessage {
     item: string
   };
   date: Date;
-  isAuthor: boolean
 }

@@ -42,17 +42,16 @@ import RegistrationForm from '../auth/RegistrationForm.vue';
 
 import {api} from '../../api/index.ts';
 import type { IAuthDto } from '../../api/interfaces/authorization/IAuthDto.ts';
+import { useUserStore } from '../../stores/user.ts';
+
+const userStore = useUserStore();
 
 const flash = useMessage();
 
 async function loginUser(dto: IAuthDto) {
   try {
-    const authResponse = await api.auth.login(dto);
-
-    if (authResponse == false) {
-      flash.warning('Неверные данные по бычку, не ври!');
-      return;
-    }
+    const user = await api.auth.login(dto);
+    userStore.setUser(user);
 
     router.push('/chat');
     flash.success('Отлично, вы авторизованы!');

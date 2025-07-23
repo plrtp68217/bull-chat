@@ -1,7 +1,6 @@
 <template>
 
-  <div :class="['message-bubble', message.isAuthor ? 'me' : 'not_me']">
-
+  <div :class="['message-bubble', message.user.id == userStore.getUserId ? 'me' : 'not_me']">
     <div class="message-author">
       {{ message.user.name }}
     </div>
@@ -19,15 +18,24 @@
 </template>
 
 <script setup lang="ts">
-import type { PropType } from 'vue'
+import { onMounted, type PropType } from 'vue'
 import type { IMessage } from '../../stores/interfaces/IMessage';
+import { useUserStore } from '../../stores/user';
 
-defineProps({
+const userStore = useUserStore();
+
+const emit = defineEmits(['messageDateEvent']);
+
+const props = defineProps({
   message: {
     type: Object as PropType<IMessage>,
     required: true
   },
 });
+
+onMounted(() => {
+  emit('messageDateEvent', props.message.date)
+})
 </script>
 
 <style scoped>

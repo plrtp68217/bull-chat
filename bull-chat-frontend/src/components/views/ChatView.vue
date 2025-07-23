@@ -33,10 +33,10 @@
     <div class="chat-container">
 
       <div class="messages-container" ref="messagesContainer">
-        <MessageComponent
-          v-for="(message, index) in messagesStore.getMessages"
+        <MessageComponent v-for="(message, index) in messagesStore.getMessages" 
           :key="index"
           :message="message"
+          @message-date-event="tryAddDate"
         />
       </div>
 
@@ -84,6 +84,7 @@ const newContent = ref('');
 const messagesStore = useMessagesStore();
 
 const messagesContainer = ref<HTMLElement | null>(null);
+const previousMessageDate = ref<Date | null>(null);
 
 const { start, stop, invoke } = useChatHub();
 
@@ -102,6 +103,27 @@ async function logOut() {
   }
   catch (error) {
     flash.error(`${error}`);
+  }
+}
+
+function tryAddDate(date: Date) {
+  const currentDate = new Date(date);
+  currentDate.setHours(0, 0, 0, 0);
+  
+  if (!previousMessageDate.value || previousMessageDate.value.getTime() !== currentDate.getTime()) {
+    const dateContainer = document.createElement("div");
+    dateContainer.className = "message-date";
+    
+    const formattedDate = currentDate.toLocaleDateString(undefined, {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+    
+    dateContainer.textContent = formattedDate;
+    messagesContainer.value?.prepend(dateContainer);
+    previousMessageDate.value = currentDate;
   }
 }
 
@@ -164,6 +186,16 @@ onUnmounted(async () => {
   overflow-y: auto; 
   display: flex;
   flex-direction: column;
+}
+
+.message-date {
+  width: 80px;
+  align-self: center;
+  text-align: center;
+  color: white;
+  padding: 2px 4px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(240, 240, 240, 0.171);
 }
 
 .input-area {
