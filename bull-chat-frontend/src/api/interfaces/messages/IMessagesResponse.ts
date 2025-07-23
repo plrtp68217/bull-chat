@@ -6,5 +6,6 @@ export interface IMessagesResponse {
   content: {
     item: string,
     contentType: number
-  }
+  },
+  id: number,
 }

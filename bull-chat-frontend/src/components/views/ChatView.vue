@@ -38,10 +38,10 @@
           <n-spin size="small" />
         </div>
 
-        <MessageComponent v-for="(message, index) in messagesStore.getMessages" 
+        <MessageComponent v-for="(message, index) in messagesStore.messages" 
           :key="index"
           :message="message"
-          @message-date-event="tryAddDate"
+          :previousMessage="index > 0 ? messagesStore.messages[index - 1] : null"
         />
       </div>
 
@@ -102,8 +102,6 @@ const messagesStore = useMessagesStore();
 const messagesContainer = ref<HTMLElement | null>(null);
 const isMessagesContainerAtBottom = ref(true)
 
-const previousMessageDate = ref<Date | null>(null);
-
 const { start, stop, invoke } = useChatHub();
 
 const sendMessage = () => {
@@ -124,27 +122,6 @@ async function logOut() {
   }
 }
 
-function tryAddDate(date: Date) {
-  // const currentDate = new Date(date);
-  // currentDate.setHours(0, 0, 0, 0);
-  
-  // if (!previousMessageDate.value || previousMessageDate.value.getTime() !== currentDate.getTime()) {
-  //   const dateContainer = document.createElement("div");
-  //   dateContainer.className = "message-date";
-    
-  //   const formattedDate = currentDate.toLocaleDateString(undefined, {
-  //     weekday: 'long',
-  //     year: 'numeric',
-  //     month: 'long',
-  //     day: 'numeric'
-  //   });
-    
-  //   dateContainer.textContent = formattedDate;
-  //   messagesContainer.value?.prepend(dateContainer);
-  //   previousMessageDate.value = currentDate;
-  // }
-}
-
 async function updateMessagesContainer() {
   if (isObserverDetected.value || messagesContainer.value == null) return;
 
@@ -155,10 +132,8 @@ async function updateMessagesContainer() {
   const heightBefore = container.scrollHeight;
   
   try {
-    const olderMessageDate: Date = messagesStore.messages[0].date;
-    console.log(olderMessageDate);
-    
-    const oldMessages = await api.messages.getMessages({date: olderMessageDate});
+    const olderMessageId: number = messagesStore.messages[0].id;
+    const oldMessages = await api.messages.getMessages(olderMessageId);
     messagesStore.prependMessages(oldMessages);
 
     await nextTick();
@@ -206,7 +181,7 @@ watch(
 onMounted(async () => {
   try {
     await start(flash);
-    const messages = await api.messages.getMessages({date: null});
+    const messages = await api.messages.getMessages(null);
     messagesStore.appendMessages(messages);
 
     initObserver();
@@ -275,16 +250,6 @@ onUnmounted(async () => {
 
 .load-more-trigger {
   align-self: center;
-}
-
-.message-date {
-  width: 80px;
-  align-self: center;
-  text-align: center;
-  color: white;
-  padding: 2px 4px;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(240, 240, 240, 0.171);
 }
 
 .input-area {

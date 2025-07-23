@@ -15,4 +15,5 @@ export interface IMessage {
     contentType: number,
   };
   date: Date;
+  id: number;
 }
