@@ -5,6 +5,7 @@
     <n-card class="form-card">
   
       <n-tabs
+        v-model:value="activeTab"
         default-value="signin"
         size="large"
         animated
@@ -36,6 +37,7 @@
 <script setup lang="ts">
 import router from '../../../router/router.ts';
 import { useMessage } from 'naive-ui';
+import { ref } from 'vue';
 
 import LoginForm from '../auth/LoginForm.vue';
 import RegistrationForm from '../auth/RegistrationForm.vue';
@@ -47,6 +49,8 @@ import { useUserStore } from '../../stores/user.ts';
 const userStore = useUserStore();
 
 const flash = useMessage();
+
+const activeTab = ref('signin');
 
 async function loginUser(dto: IAuthDto) {
   try {
@@ -64,6 +68,7 @@ async function loginUser(dto: IAuthDto) {
 async function registerUser(dto: IAuthDto) {
   try {
     const registerResponse = await api.auth.register(dto);
+    activeTab.value = 'signin';
     flash.success(`${registerResponse}`);
   }
   catch (error) {
