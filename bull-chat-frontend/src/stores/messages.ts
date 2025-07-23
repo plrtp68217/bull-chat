@@ -4,7 +4,7 @@ import type { IMessage } from './interfaces/IMessage';
 
 export const useMessagesStore = defineStore('messages', {
   state: () => ({
-    messages: [] as IMessage[] |  null
+    messages: [] as IMessage[]
   }),
 
   getters: {
@@ -18,8 +18,11 @@ export const useMessagesStore = defineStore('messages', {
     addMessage(message: IMessage) {
       this.messages?.push(message)
     },
-    addMessages(messages: IMessage[]) {
+    appendMessages(messages: IMessage[]) {
       this.messages?.push(...messages);
+    },
+    prependMessages(messages: IMessage[]) {
+      this.messages = [...messages, ...this.messages];
     },
     clearMessages() {
       this.messages?.splice(0, this.messages.length);

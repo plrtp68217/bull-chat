@@ -33,6 +33,11 @@
     <div class="chat-container">
 
       <div class="messages-container" ref="messagesContainer">
+
+        <div class="load-more-trigger">
+          <n-spin size="small" />
+        </div>
+
         <MessageComponent v-for="(message, index) in messagesStore.getMessages" 
           :key="index"
           :message="message"
@@ -74,6 +79,17 @@ import { useMessagesStore } from '../../stores/messages.ts';
 import { useChatHub } from '../../hubs/chat';
 import { api } from '../../api';
 
+import useObserver from '../../observer/index.ts';
+
+const { triggerElement, initObserver, disconnectObserver } = useObserver(
+  '.load-more-trigger',
+  {
+    onVisible: updateMessagesContainer,
+  },
+);
+
+const isObserverDetected = ref(false);
+
 const flash: MessageApi = useMessage();
 
 const isDrawerActive = ref(false);
@@ -107,24 +123,54 @@ async function logOut() {
 }
 
 function tryAddDate(date: Date) {
-  const currentDate = new Date(date);
-  currentDate.setHours(0, 0, 0, 0);
+  // const currentDate = new Date(date);
+  // currentDate.setHours(0, 0, 0, 0);
   
-  if (!previousMessageDate.value || previousMessageDate.value.getTime() !== currentDate.getTime()) {
-    const dateContainer = document.createElement("div");
-    dateContainer.className = "message-date";
+  // if (!previousMessageDate.value || previousMessageDate.value.getTime() !== currentDate.getTime()) {
+  //   const dateContainer = document.createElement("div");
+  //   dateContainer.className = "message-date";
     
-    const formattedDate = currentDate.toLocaleDateString(undefined, {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
+  //   const formattedDate = currentDate.toLocaleDateString(undefined, {
+  //     weekday: 'long',
+  //     year: 'numeric',
+  //     month: 'long',
+  //     day: 'numeric'
+  //   });
     
-    dateContainer.textContent = formattedDate;
-    messagesContainer.value?.prepend(dateContainer);
-    previousMessageDate.value = currentDate;
+  //   dateContainer.textContent = formattedDate;
+  //   messagesContainer.value?.prepend(dateContainer);
+  //   previousMessageDate.value = currentDate;
+  // }
+}
+
+async function updateMessagesContainer() {
+  if (isObserverDetected.value || messagesContainer.value == null) return;
+
+  isObserverDetected.value = true;
+
+  const container = messagesContainer.value;
+  const scrollBefore = container.scrollTop;
+  const heightBefore = container.scrollHeight;
+  
+  try {
+    const olderMessageDate: Date = messagesStore.messages[0].date;
+    console.log(olderMessageDate);
+    
+    const oldMessages = await api.messages.getMessages({date: olderMessageDate});
+    messagesStore.prependMessages(oldMessages);
+
+    await nextTick();
+
+    const heightAfter = container.scrollHeight;
+    container.scrollTop = scrollBefore + (heightAfter - heightBefore);
   }
+  catch (error) {
+    flash.error(`${error}`);
+  }
+  finally {
+    isObserverDetected.value = false;
+  }
+
 }
 
 function scrollToBottom() {
@@ -139,16 +185,20 @@ function activateDrawer() {
   isDrawerActive.value = true
 }
 
-watch(
-  () => messagesStore.getMessages?.length,
-  (_old, _new) => scrollToBottom()
-)
+// Переделать, так как при загрузке старых сообщений он тоже будет скроллить вниз
+
+// watch(
+//   () => messagesStore.getMessages?.length,
+//   (_old, _new) => scrollToBottom()
+// )
 
 onMounted(async () => {
   try {
     await start(flash);
     const messages = await api.messages.getMessages({date: null});
-    messagesStore.addMessages(messages);
+    messagesStore.appendMessages(messages);
+    
+    initObserver();
     scrollToBottom();
   }
   catch (error) {
@@ -164,6 +214,7 @@ onUnmounted(async () => {
     flash.error(`${error}`);
   }
 
+  disconnectObserver();
   messagesStore.clearMessages();
 })
 
@@ -201,6 +252,10 @@ onUnmounted(async () => {
   overflow-y: auto; 
   display: flex;
   flex-direction: column;
+}
+
+.load-more-trigger {
+  align-self: center;
 }
 
 .message-date {

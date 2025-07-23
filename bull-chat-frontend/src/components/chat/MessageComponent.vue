@@ -10,7 +10,9 @@
     </div>
 
     <div class="message-time">
-      {{ new Date(message.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}}
+      <!-- {{ new Date(message.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}} -->
+      <!-- Временно, для отладки дат -->
+        {{ message.date }}
     </div>
 
   </div> 
