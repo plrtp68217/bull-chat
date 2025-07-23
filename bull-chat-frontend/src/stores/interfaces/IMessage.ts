@@ -11,7 +11,8 @@ export type IMessageAuthor = 'me' | 'not_me';
 export interface IMessage {
   user: IUser,
   content:  {
-    item: string
+    item: string,
+    contentType: number,
   };
   date: Date;
 }

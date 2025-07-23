@@ -145,13 +145,28 @@ watch(
 )
 
 onMounted(async () => {
-  await start(flash);
-  scrollToBottom();
+  try {
+    await start(flash);
+    const messages = await api.messages.getMessages({date: null});
+    messagesStore.addMessages(messages);
+    scrollToBottom();
+  }
+  catch (error) {
+    flash.error(`${error}`);
+  }
 });
 
 onUnmounted(async () => {
-  await stop(flash);
+  try {
+    await stop(flash);
+  }
+  catch (error) {
+    flash.error(`${error}`);
+  }
+
+  messagesStore.clearMessages();
 })
+
 </script>
 
 <style scoped>

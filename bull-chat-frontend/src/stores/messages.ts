@@ -18,6 +18,9 @@ export const useMessagesStore = defineStore('messages', {
     addMessage(message: IMessage) {
       this.messages?.push(message)
     },
+    addMessages(messages: IMessage[]) {
+      this.messages?.push(...messages);
+    },
     clearMessages() {
       this.messages?.splice(0, this.messages.length);
     }
