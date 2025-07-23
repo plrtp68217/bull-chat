@@ -1,34 +1,54 @@
 <template>
   <div class="root">
 
+    <!-- Учатники -->
+    <ModalComponent
+      :isVisible="isAllVisible"
+      @update:isVisible="isAllVisible = $event"
+      :title="'Все пользователи'"
+      :footer="'Ждем других'"
+    >
+
+    </ModalComponent>
+
+    <!-- В сети -->
+    <ModalComponent
+      :isVisible="isActiveVisible"
+      @update:isVisible="isActiveVisible = $event"
+      :title="'В сети'"
+      :footer="'Ждем других'"
+    >
+
+    </ModalComponent>
+
     <div class="chat-header">
 
-      <n-button 
-        tertiary
-        round
-        type="primary" 
-        @click="activateDrawer"
-      >
-        Информация
+      <n-button-group size="small">
+
+      <n-button @click="isAllVisible = true">
+        <template #icon>
+          <n-icon><People /></n-icon>
+        </template>
+        Участники
       </n-button>
 
-      
-      <n-button 
-        tertiary 
-        round 
-        type="info"
-        @click="logOut"
-      >
+      <n-button @click="isActiveVisible = true">
+        <template #icon>
+          <n-icon><Ellipse /></n-icon>
+        </template>
+        В сети
+      </n-button>
+
+      <n-button round @click="logOut">
+        <template #icon>
+          <n-icon><LogInIcon /></n-icon>
+        </template>
         Выход
       </n-button>
+
+    </n-button-group>
       
     </div>
-
-    <n-drawer v-model:show="isDrawerActive" :placement="drawerPlacement">
-      <n-drawer-content>
-        Бычок без еды продержится ровно 5 минут, после чего начинается тряска.
-      </n-drawer-content>
-    </n-drawer>
 
     <div class="chat-container">
 
@@ -43,6 +63,10 @@
           :message="message"
           :previousMessage="index > 0 ? messagesStore.messages[index - 1] : null"
         />
+      </div>
+
+      <div class="scroll-to-bottom">
+        
       </div>
 
       <div class="input-area">
@@ -68,12 +92,12 @@
 import router from '../../../router/router.ts';
 import { ref, onMounted, nextTick, onUnmounted, watch } from 'vue';
 import { NInput, NButton, useMessage } from 'naive-ui';
-
-import type { DrawerPlacement } from 'naive-ui';
+import { LogInOutline as LogInIcon, People, Ellipse } from '@vicons/ionicons5';
 
 import type { MessageApi } from 'naive-ui';
 
 import MessageComponent from '../chat/MessageComponent.vue';
+import ModalComponent from '../modal/ModalComponent.vue';
 
 import { useMessagesStore } from '../../stores/messages.ts';
 import { useChatHub } from '../../hubs/chat';
@@ -88,21 +112,18 @@ const { initObserver, disconnectObserver } = useObserver(
   },
 );
 
-const triggerIsVisible = ref(true);
-
-const isObserverDetected = ref(false);
+const triggerIsVisible = ref<boolean>(true);
+const isObserverDetected = ref<boolean>(false);
+const isAllVisible = ref<boolean>(false);
+const isActiveVisible = ref<boolean>(false);
 
 const flash: MessageApi = useMessage();
 
-const isDrawerActive = ref(false);
-const drawerPlacement = ref<DrawerPlacement>('top');
-
 const newContent = ref('');
-
 const messagesStore = useMessagesStore();
 
 const messagesContainer = ref<HTMLElement | null>(null);
-const isMessagesContainerAtBottom = ref(true)
+const isMessagesContainerAtBottom = ref<boolean>(true)
 
 const { start, stop, invoke } = useChatHub();
 
@@ -173,10 +194,6 @@ const checkScrollPosition = () => {
   isMessagesContainerAtBottom.value = scrollHeight - (scrollTop + clientHeight) < threshold
 }
 
-function activateDrawer() {
-  isDrawerActive.value = true
-}
-
 watch(
   () => messagesStore.getMessages?.length,
   (_old, _new) => {
@@ -233,7 +250,7 @@ onUnmounted(async () => {
 
 .chat-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
 }
 
 .chat-container {
@@ -244,7 +261,7 @@ onUnmounted(async () => {
   flex-direction: column;
   background-color: rgba(32, 32, 32, 0.185);
   border-radius: 4px;
-  box-shadow: 0 2px 8px rgba(240, 240, 240, 0.171);
+  box-shadow: 0 2px 8px rgba(85, 85, 85, 0.171);
   overflow: hidden; 
 }
 
