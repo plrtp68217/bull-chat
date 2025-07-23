@@ -67,27 +67,26 @@ namespace bull_chat_backend.Repository
             return await _context.Message.CountAsync(token);
         }
 
-        public async ValueTask<DateTime> LastMessageDate(CancellationToken token)
+        public async ValueTask<Message> LastMessage(CancellationToken token)
         {
             var lastMessage = await _context.Message
                 .OrderByDescending(m => m.Date)
                 .FirstAsync(token);
 
-            return lastMessage.Date;
+            return lastMessage;
         }
 
 
-
-        public async Task<IList<MessageDto>> GetPagedMessages(DateTime cursor, int pageSize, CancellationToken token)
+        public async Task<IList<MessageDto>> GetPagedMessages(int cursorIndex, int pageSize, CancellationToken token)
               => await _context.Message
-              .AsNoTracking()
-              .Include(m => m.User)
-              .Include(m => m.Content)
-              .Where(m => m.Date <= cursor)
-              .OrderByDescending(m => m.Date)  
-              .Take(pageSize)
-              .OrderBy(m => m.Date)
-              .Select(m => m.ToDto())
-              .ToListAsync(token);
+                .AsNoTracking()
+                .Include(m => m.User)
+                .Include(m => m.Content)
+                .Where(m => m.Id < cursorIndex) 
+                .OrderByDescending(m => m.Id) 
+                .Take(pageSize)
+                .OrderBy(m => m.Id) 
+                .Select(m => m.ToDto())
+                .ToListAsync(token);
     }
 }

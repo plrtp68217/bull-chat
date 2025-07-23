@@ -25,17 +25,21 @@ namespace bull_chat_backend.Controllers
         [HttpPost("last-message-date")]
         public async Task<IActionResult> LastMessageDate(CancellationToken token)
         {
-            var messages = await _messageRepository.LastMessageDate(token);
+            var messages = await _messageRepository.LastMessage(token);
             return Ok(messages);
         }
 
         [HttpPost("next-message-page")]
-        public async Task<IActionResult> LastMessageDate(DateTime? date  ,CancellationToken token)
+        public async Task<IActionResult> LastMessageDate(int? messageId  ,CancellationToken token)
         {
+            if (!messageId.HasValue) 
+            {
+                var lastMessage = await _messageRepository.LastMessage(token);
+                messageId = lastMessage.Id + 1;
+            }
 
             const int PAGE_SIZE = 100;
-            date = date ?? DateTime.UtcNow;
-            var messages = await _messageRepository.GetPagedMessages(date.Value, PAGE_SIZE, token);
+            var messages = await _messageRepository.GetPagedMessages(messageId.Value, PAGE_SIZE, token);
             return Ok(messages);
         }
         #region mock

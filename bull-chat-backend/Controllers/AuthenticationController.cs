@@ -59,7 +59,6 @@ namespace bull_chat_backend.Controllers
                     HttpOnly = true,
                     Secure = true,
                     SameSite = SameSiteMode.Strict,
-                    // Токен генерируется на 24 ч, поэтому ставим жизнь куков Now + 24 (время жизни см. appsettings.json)
                     Expires = DateTimeOffset.UtcNow.AddHours(_configuration.GetSection(nameof(JwtOptions)).Get<JwtOptions>()!.ExpiredHours)
                 });
             return Ok(new

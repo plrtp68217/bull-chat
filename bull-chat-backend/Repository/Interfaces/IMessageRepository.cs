@@ -5,7 +5,7 @@ namespace bull_chat_backend.Repository.RepositoryInterfaces
 {
     public interface IMessageRepository : IRepository<Message>
     {
-        ValueTask<DateTime> LastMessageDate(CancellationToken token);
-        Task<IList<MessageDto>> GetPagedMessages(DateTime cursor, int pageSize, CancellationToken token);
+        ValueTask<Message> LastMessage(CancellationToken token);
+        Task<IList<MessageDto>> GetPagedMessages(int cursorIndex, int pageSize, CancellationToken token);
     }
 }

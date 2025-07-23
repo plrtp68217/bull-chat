@@ -24,7 +24,7 @@ namespace bull_chat_backend.Models.DBase
             User = msgFrom;
             Content = new Content(text, contentType);
         }
-        public MessageDto ToDto() => new(Date, User.ToDto(), Content.ToDto());
+        public MessageDto ToDto() => new(Id,Date, User.ToDto(), Content.ToDto());
         public static bool IsEmpty(Message msg) => User.IsEmpty(msg.User!) && Content.IsEmpty(msg.Content!);
 
         private static readonly Message _empty = new(User.Empty, DateTime.MinValue, ContentType.Text, string.Empty);
