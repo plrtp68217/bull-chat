@@ -75,33 +75,6 @@ namespace bull_chat_backend.Repository
             await _context.SaveChangesAsync(token);
             return msg;
         }
-       
-
-        public async Task<ICollection<MessageDto>> GetLastNFromDateAsync(int count, DateTime fromDate, CancellationToken token)
-        {
-            return await _context.Message
-                .AsNoTracking()
-                .Include(m => m.User)
-                .Include(m => m.Content)
-                .Where(m => m.Date >= fromDate)
-                .OrderByDescending(m => m.Date)
-                .Take(count)
-                .OrderBy(m => m.Date)
-                .Select(m => m.ToDto())
-                .ToListAsync(token);
-        }
-
-        public async Task<ICollection<MessageDto>> GetDateIntervalAsync(DateTime dateStart, DateTime dateTo, CancellationToken token)
-        {
-            return await _context.Message
-                .Where(m => m.Date >= dateStart && m.Date <= dateTo)
-                .Include(m => m.User)
-                .Include(m => m.Content)
-                .OrderBy(m => m.Date)
-                .Select(m => m.ToDto())
-                .ToListAsync(token);
-
-        }
 
         public async ValueTask<DateTime> LastMessageDate(CancellationToken token)
         {
@@ -111,5 +84,40 @@ namespace bull_chat_backend.Repository
 
             return lastMessage.Date;
         }
+
+        public async Task<ICollection<MessageDto>> GetPagedMessages(
+            DateTime? cursor,
+            bool isNext,
+            CancellationToken token,
+            int pageSize)
+        {
+            var query = _context.Message
+                .AsNoTracking()
+                .Include(m => m.User)
+                .Include(m => m.Content)
+                .AsQueryable();
+
+            if (cursor.HasValue)
+            {
+                query = isNext
+                    ? query.Where(m => m.Date < cursor.Value)  
+                    : query.Where(m => m.Date > cursor.Value);
+            }
+
+            query = isNext
+                ? query.OrderByDescending(m => m.Date)  
+                : query.OrderBy(m => m.Date);           
+
+            var page = await query
+                .Take(pageSize)
+                .ToListAsync(token);
+
+            var result = isNext
+                ? page.OrderBy(m => m.Date)             
+                : page.OrderByDescending(m => m.Date); 
+
+            return [.. result.Select(m => m.ToDto())];
+        }
+
     }
 }
