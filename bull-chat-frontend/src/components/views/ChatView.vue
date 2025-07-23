@@ -172,7 +172,6 @@ async function updateMessagesContainer() {
   finally {
     isObserverDetected.value = false;
   }
-
 }
 
 function scrollToBottom() {
@@ -246,7 +245,7 @@ onUnmounted(async () => {
   margin: auto;
   display: flex;
   flex-direction: column;
-  max-width: 1100px;
+  max-width: 1400px;
 }
 
 .chat-header {

@@ -63,6 +63,10 @@ onMounted(() => {
   border-bottom-left-radius: 0;
 }
 
+.message-author {
+  font-weight: 600;
+}
+
 .message-content {
   margin-bottom: 4px;
 }
