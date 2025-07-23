@@ -25,7 +25,8 @@ namespace bull_chat_backend.Hubs
             _logger.LogDebug("От бычка с именем {BullName} пришло {ContentText}", currentUser.Name, content);
 
             var token = Context.ConnectionAborted;
-            var message = await _messageRepository.AddAsync(currentUser, content, Models.DBase.Enum.ContentType.Text, token);
+            var message = new Message(currentUser, DateTime.UtcNow, Models.DBase.Enum.ContentType.Text, content);
+            await _messageRepository.AddAsync(message, token);
 
             token.ThrowIfCancellationRequested();
 

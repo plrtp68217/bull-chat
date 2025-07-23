@@ -1,4 +1,5 @@
 using bull_chat_backend.Models.DBase;
+using bull_chat_backend.Models.DBase.Enum;
 using bull_chat_backend.Repository.RepositoryInterfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -29,12 +30,15 @@ namespace bull_chat_backend.Controllers
         }
 
         [HttpPost("next-message-page")]
-        public async Task<IActionResult> LastMessageDate(DateTime date,bool fromOldToNewer,CancellationToken token)
+        public async Task<IActionResult> LastMessageDate(DateTime? date  ,CancellationToken token)
         {
-            var messages = await _messageRepository.GetPagedMessages(date,fromOldToNewer,token,100);
+
+            const int PAGE_SIZE = 100;
+            date = date ?? DateTime.UtcNow;
+            var messages = await _messageRepository.GetPagedMessages(date.Value, PAGE_SIZE, token);
             return Ok(messages);
         }
-
+        #region mock
         [HttpPost("mock")]
         public async Task<IActionResult> Mock(CancellationToken token)
         {
@@ -196,13 +200,12 @@ namespace bull_chat_backend.Controllers
                 var swap = s % daysCount == 0;
                 var user =  swap ? bull1 : bull2;
                 date = date.AddDays(swap ? 1 : 0);
-                return new Message(user, content[s])
-                {
-                    Date = date
-                };
+                return new Message(user, date, ContentType.Text, content[s]);
             });
+
             await _messageRepository.AddRangeAsync(msgs , token);
             return Ok();
         }
+        #endregion
     }
 }
