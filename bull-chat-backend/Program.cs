@@ -51,7 +51,10 @@ namespace bull_chat_backend
             {
                 options.AddPolicy(POLICY_NAME, policy =>
                 {
-                    policy.WithOrigins("http://localhost:5173")
+                    var allowedOrigin = Environment.GetEnvironmentVariable("DOTNET_CORS_ORIGIN") ?? 
+                                       "http://localhost:5173";
+
+                    policy.WithOrigins(allowedOrigin)
                           .AllowAnyMethod()
                           .AllowAnyHeader()
                           .AllowCredentials();

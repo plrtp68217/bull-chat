@@ -1,3 +1,2 @@
-RUN dotnet restore bull-chat-backend.csproj
-RUN dotnet publish bull-chat-backend.csproj -c Release -o /app
-
+#!/bin/sh
+dotnet bull-chat-backend.dll --urls "http://0.0.0.0:80"

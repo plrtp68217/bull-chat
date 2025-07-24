@@ -15,6 +15,7 @@ RUN dotnet publish bull-chat-backend.csproj -c Release -o /output
 # Runtime image
 FROM mcr.microsoft.com/dotnet/aspnet:9.0
 WORKDIR /app
+ENV ASPNETCORE_ENVIRONMENT=Production
 COPY --from=backend-builder /output .
 COPY --from=frontend-builder /frontend/dist ./wwwroot
 
