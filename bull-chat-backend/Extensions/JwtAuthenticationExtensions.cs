@@ -75,8 +75,6 @@ namespace bull_chat_backend.Extensions
                 .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
-                    // 2.   Проверяется что токен валидный
-                    //      Тут же и проверяется его время жизни.
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
                         ValidateIssuer = true,
@@ -92,32 +90,36 @@ namespace bull_chat_backend.Extensions
 
                     options.Events = new JwtBearerEvents
                     {
-                        // 1.   Вытаскивается токен из Url или Cookie
                         OnMessageReceived = context =>
                         {
-                            context.Token ??= context.Request.Cookies[JwtCookieName];
-
-                            return Task.CompletedTask;
-                        },
-                        // 3.   Токен валиден, проверятся не удален ли токен досрочно (Logout) и есть ли сессия.
-                        // 4.   Если все проверилось, то вызывается метод контроллера.
-                        //          [Authorize] Атрибут может проверить на РОЛИ.
-                        OnTokenValidated = context =>
-                        {
+                            var request = context.Request;
                             var tokenMap = context.HttpContext.RequestServices.GetRequiredService<TokenMapService>();
 
-                            var authHeader = context.Request.Headers.Authorization.ToString();
-                            var token = authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase) 
-                                ? authHeader["Bearer ".Length..].Trim()
-                                : string.Empty;
+                            string? token = string.Empty;
 
+                            var authHeader = request.Headers.Authorization.ToString();
+                            if (authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+                            {
+                                token = authHeader["Bearer ".Length..].Trim();
+                            }
+                            else if (request.Path.StartsWithSegments(ChatHub.HUB_URI) &&
+                                     request.Query.TryGetValue("access_token", out var accessToken))
+                            {
+                                token = accessToken.ToString();
+                            }
+
+                            // Проверяем валидность токена, если он найден
                             if (string.IsNullOrEmpty(token) || !tokenMap.IsTokenActive(token))
                             {
                                 context.Fail("Токен бычека не действителен");
                             }
+                            else
+                            {
+                                context.Token = token;
+                            }
 
                             return Task.CompletedTask;
-                        }
+                        },
                     };
                 });
 
