@@ -2,22 +2,18 @@
   <div class="root">
 
     <!-- Учатники -->
-    <ModalComponent
-      :isVisible="isAllVisible"
+    <ModalComponent :isVisible="isAllVisible"
       @update:isVisible="isAllVisible = $event"
       :title="'Все пользователи'"
-      :footer="'Ждем других'"
-    >
+      :footer="'Ждем других'">
 
     </ModalComponent>
 
     <!-- В сети -->
-    <ModalComponent
-      :isVisible="isActiveVisible"
+    <ModalComponent :isVisible="isActiveVisible"
       @update:isVisible="isActiveVisible = $event"
       :title="'В сети'"
-      :footer="'Ждем других'"
-    >
+      :footer="'Ждем других'">
 
     </ModalComponent>
 
@@ -25,63 +21,71 @@
 
       <n-button-group size="small">
 
-      <n-button @click="isAllVisible = true">
-        <template #icon>
-          <n-icon><People /></n-icon>
-        </template>
-        Участники
-      </n-button>
+        <n-button @click="isAllVisible = true">
+          <template #icon>
+            <n-icon>
+              <People />
+            </n-icon>
+          </template>
+          Участники
+        </n-button>
 
-      <n-button @click="isActiveVisible = true">
-        <template #icon>
-          <n-icon><Ellipse /></n-icon>
-        </template>
-        В сети
-      </n-button>
+        <n-button @click="isActiveVisible = true">
+          <template #icon>
+            <n-icon>
+              <Ellipse />
+            </n-icon>
+          </template>
+          В сети
+        </n-button>
 
-      <n-button round @click="logOut">
-        <template #icon>
-          <n-icon><LogInIcon /></n-icon>
-        </template>
-        Выход
-      </n-button>
+        <n-button round
+          @click="logOut">
+          <template #icon>
+            <n-icon>
+              <LogInIcon />
+            </n-icon>
+          </template>
+          Выход
+        </n-button>
 
-    </n-button-group>
-      
+      </n-button-group>
+
     </div>
 
     <div class="chat-container">
 
-      <div class="messages-container" ref="messagesContainer">
+      <div class="messages-container"
+        ref="messagesContainer">
 
-        <div v-if="triggerIsVisible" class="load-more-trigger">
+        <div v-if="triggerIsVisible"
+          class="load-more-trigger">
           <n-spin size="small" />
         </div>
 
-        <MessageComponent v-for="(message, index) in messagesStore.messages" 
+        <MessageComponent v-for="(message, index) in messagesStore.messages"
           :key="index"
           :message="message"
-          :previousMessage="index > 0 ? messagesStore.messages[index - 1] : null"
-        />
+          :previousMessage="index > 0 ? messagesStore.messages[index - 1] : null" />
       </div>
 
       <div class="scroll-to-bottom">
-        
+
       </div>
 
       <div class="input-area">
-        <n-input
-          v-model:value="newContent"
+        <n-input v-model:value="newContent"
           type="textarea"
           placeholder="Введите сообщение..."
           :autosize="{ minRows: 2, maxRows: 5 }"
-          @keyup.enter.prevent="sendMessage"
-        />
-        <n-button type="primary" @click="sendMessage" :disabled="!newContent.trim()">
+          @keyup.enter.prevent="sendMessage" />
+        <n-button type="primary"
+          @click="sendMessage"
+          :disabled="!newContent.trim()">
           Отправить
         </n-button>
       </div>
-      
+
     </div>
 
   </div>
@@ -153,7 +157,7 @@ async function updateMessagesContainer() {
   const container = messagesContainer.value;
   const scrollBefore = container.scrollTop;
   const heightBefore = container.scrollHeight;
-  
+
   try {
     const olderMessageId: number = messagesStore.messages[0].id;
     const oldMessages = await api.messages.getMessages(olderMessageId);
@@ -188,7 +192,7 @@ function scrollToBottom() {
 
 const checkScrollPosition = () => {
   if (!messagesContainer.value) return
-  
+
   const { scrollTop, scrollHeight, clientHeight } = messagesContainer.value
   const threshold = 200;
   isMessagesContainerAtBottom.value = scrollHeight - (scrollTop + clientHeight) < threshold
@@ -206,11 +210,13 @@ watch(
 onMounted(async () => {
   try {
     await start(flash);
-    const messages = await api.messages.getMessages(null);
-    messagesStore.appendMessages(messages);
+    setTimeout(async () => {
+      const messages = await api.messages.getMessages(null);
+      messagesStore.appendMessages(messages);
 
-    initObserver();
-    scrollToBottom();
+      initObserver();
+      scrollToBottom();
+    },10000);
   }
   catch (error) {
     flash.error(`${error}`);
@@ -262,13 +268,13 @@ onUnmounted(async () => {
   background-color: rgba(32, 32, 32, 0.185);
   border-radius: 4px;
   box-shadow: 0 2px 8px rgba(85, 85, 85, 0.171);
-  overflow: hidden; 
+  overflow: hidden;
 }
 
 .messages-container {
   height: 100%;
   padding: 16px;
-  overflow-y: auto; 
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
 }
