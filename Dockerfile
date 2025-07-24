@@ -9,9 +9,14 @@ RUN npm run build
 # Backend build
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS backend-builder
 WORKDIR /backend
-COPY bull-chat-backend/ .
-RUN dotnet restore -v diag && \
-    dotnet build -c Release --no-restore -v diag && \
+
+COPY bull-chat-backend/*.csproj ./
+RUN dotnet restore -v diag
+
+COPY bull-chat-backend/ ./
+
+# Сборка и публикация
+RUN dotnet build -c Release --no-restore -v diag && \
     dotnet publish -c Release -o /output \
         --no-build \
         --no-restore \
@@ -23,10 +28,10 @@ RUN dotnet restore -v diag && \
 FROM mcr.microsoft.com/dotnet/aspnet:9.0
 WORKDIR /app
 ENV ASPNETCORE_ENVIRONMENT=Production
+
 COPY --from=backend-builder /output .
 COPY --from=frontend-builder /frontend/dist ./wwwroot
 
-# Startup
 COPY entrypoint.sh .
 RUN chmod +x entrypoint.sh
 ENTRYPOINT ["./entrypoint.sh"]
