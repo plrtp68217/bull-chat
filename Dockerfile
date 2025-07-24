@@ -7,7 +7,7 @@ COPY bull-chat-frontend/ .
 RUN npm run build
 
 # Backend build
-FFROM mcr.microsoft.com/dotnet/sdk:9.0 AS backend-builder
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS backend-builder
 WORKDIR /backend
 
 COPY bull-chat-backend/*.csproj ./
