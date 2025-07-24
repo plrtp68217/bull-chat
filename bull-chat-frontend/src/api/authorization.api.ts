@@ -1,6 +1,7 @@
 import apiClient from "./apiClient";
 import type { IAuthDto } from "./interfaces/authorization/IAuthDto";
 import type { IAuthResponse } from "./interfaces/authorization/IAuthResponse";
+import type { IUser } from "../stores/interfaces/IUser";
 
 export default {
   async login(dto: IAuthDto): Promise<IAuthResponse> {
@@ -15,8 +16,8 @@ export default {
     const response = await apiClient.post('/authentication/register', dto);
     return response.data;
   },
-  async validate(): Promise<IAuthResponse>  {
+  async validate(): Promise<IUser>  {
     const response = await apiClient.post('/authentication/validate');
-    return response.data.user;
+    return response.data;
   }
 }
