@@ -104,24 +104,20 @@ namespace bull_chat_backend.Extensions
                         //          [Authorize] Атрибут может проверить на РОЛИ.
                         OnTokenValidated = context =>
                         {
-                            var jwtToken = context.HttpContext.Request.Cookies[JwtCookieName];
-
-                            if (string.IsNullOrEmpty(jwtToken))
-                            {
-                                context.Fail("Token not found in cookies");
-                                return Task.CompletedTask;
-                            }
-
                             var tokenMap = context.HttpContext.RequestServices.GetRequiredService<TokenMapService>();
 
-                            if (!tokenMap.IsTokenActive(jwtToken))
+                            var authHeader = context.Request.Headers.Authorization.ToString();
+                            var token = authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase) 
+                                ? authHeader["Bearer ".Length..].Trim()
+                                : string.Empty;
+
+                            if (string.IsNullOrEmpty(token) || !tokenMap.IsTokenActive(token))
                             {
-                                context.Fail("Token is not active or has been revoked");
-                                return Task.CompletedTask;
+                                context.Fail("Токен бычека не действителен");
                             }
+
                             return Task.CompletedTask;
                         }
-
                     };
                 });
 

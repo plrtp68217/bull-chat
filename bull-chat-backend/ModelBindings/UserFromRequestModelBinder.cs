@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 namespace bull_chat_backend.ModelBindings
 {
     /// <summary>
-    /// Модельный биндер, извлекающий пользователя из JWT-токена в cookie.
+    /// Модельный биндер, извлекающий пользователя из JWT-токена, переданного в заголовке Authorization.
     /// Используется в сочетании с атрибутом <c>[UserFromRequest]</c> для автоматической подстановки <see cref="User"/>.
     /// </summary>
     public class UserFromRequestModelBinder(TokenMapService tokenMapService, ILogger<UserFromRequestModelBinder> logger) : IModelBinder
@@ -13,10 +13,6 @@ namespace bull_chat_backend.ModelBindings
         private readonly TokenMapService _tokenMapService = tokenMapService;
         private readonly ILogger<UserFromRequestModelBinder> _logger = logger;
 
-        /// <summary>
-        /// Выполняет биндинг модели <see cref="User"/> из JWT-токена, переданного в куки.
-        /// </summary>
-        /// <param name="bindingContext">Контекст биндинга ASP.NET Core.</param>
         public Task BindModelAsync(ModelBindingContext bindingContext)
         {
             var httpContext = bindingContext.HttpContext;
@@ -30,8 +26,17 @@ namespace bull_chat_backend.ModelBindings
                 return Task.CompletedTask;
             }
 
-            // Получение JWT из куки
-            var jwt = httpContext.Request.Cookies[JwtAuthenticationExtensions.JwtCookieName];
+            // Получение JWT из заголовка Authorization
+            var authHeader = httpContext.Request.Headers.Authorization.ToString();
+
+            if (string.IsNullOrWhiteSpace(authHeader) || !authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+            {
+                bindingContext.ModelState.AddModelError("User", "Заголовок Authorization отсутствует или некорректен");
+                _logger.LogWarning("Бычок не принёс Bearer токен");
+                return Task.CompletedTask;
+            }
+
+            var jwt = authHeader["Bearer ".Length..].Trim();
 
             if (string.IsNullOrEmpty(jwt) || !_tokenMapService.IsTokenActive(jwt))
             {
@@ -49,7 +54,6 @@ namespace bull_chat_backend.ModelBindings
                 return Task.CompletedTask;
             }
 
-            // Успешный результат биндинга
             bindingContext.Result = ModelBindingResult.Success(user);
             return Task.CompletedTask;
         }

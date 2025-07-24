@@ -63,7 +63,8 @@ namespace bull_chat_backend.Controllers
                 });
             return Ok(new
             {
-                User = user.ToDto()
+                User = user.ToDto(),
+                Tolen = jwtToken
             });
         }
 
