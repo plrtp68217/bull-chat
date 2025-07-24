@@ -11,4 +11,21 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - DOTNET_CORS_ORIGIN=http://localhost:80
+      - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=bull-chat;Username=postgres;Password=1234
+    depends_on:
+      - db
 
+  db:
+    image: postgres:latest
+    container_name: postgres_bull_chat
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=1234
+      - POSTGRES_DB=bull-chat
+    volumes:
+      - ./bull-chat-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+volumes:
+  postgres_data:
