@@ -10,7 +10,14 @@ RUN npm run build
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS backend-builder
 WORKDIR /backend
 COPY bull-chat-backend/ .
-RUN dotnet publish bull-chat-backend.csproj -c Release -o /output
+RUN dotnet restore && \
+    dotnet build -c Release --no-restore && \
+    dotnet publish -c Release -o /output \
+        --no-build \
+        --no-restore \
+        -p:DebugType=None \
+        -p:DebugSymbols=false \
+        -p:UseAppHost=false -v diag
 
 # Runtime image
 FROM mcr.microsoft.com/dotnet/aspnet:9.0
@@ -23,4 +30,3 @@ COPY --from=frontend-builder /frontend/dist ./wwwroot
 COPY entrypoint.sh .
 RUN chmod +x entrypoint.sh
 ENTRYPOINT ["./entrypoint.sh"]
-
