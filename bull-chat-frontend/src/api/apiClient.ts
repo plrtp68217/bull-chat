@@ -1,7 +1,8 @@
 import axios from "axios";
+const basePath = import.meta.env.VITE_BASE_PATH || '';
 
 const apiClient = axios.create({
-  baseURL: "/api",
+  baseURL: `${basePath}/api`,
   // baseURL: 'http://localhost:5081/api/',
   timeout: 5000,
   headers: {
