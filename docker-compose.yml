@@ -34,9 +34,11 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        VITE_BASE_PATH: /бойня
+    container_name: bull_chat
     ports:
       - "30000:80"
-    container_name: bull_chat
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - DOTNET_CORS_ORIGIN=http://localhost:80

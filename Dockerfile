@@ -1,5 +1,7 @@
 # Frontend build
 FROM node:20-alpine AS frontend-builder
+ARG VITE_BASE_PATH=/
+ENV VITE_BASE_PATH=$VITE_BASE_PATH
 WORKDIR /frontend
 COPY bull-chat-frontend/package*.json ./
 RUN npm install

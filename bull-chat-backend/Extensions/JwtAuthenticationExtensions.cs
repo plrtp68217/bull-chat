@@ -108,7 +108,6 @@ namespace bull_chat_backend.Extensions
                                 token = accessToken.ToString();
                             }
 
-                            // Проверяем валидность токена, если он найден
                             if (string.IsNullOrEmpty(token) || !tokenMap.IsTokenActive(token))
                             {
                                 context.Fail("Токен бычека не действителен");

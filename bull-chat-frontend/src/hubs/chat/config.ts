@@ -1,9 +1,10 @@
 import * as signalR from "@microsoft/signalr";
 
-export const createHubConnection = (): signalR.HubConnection => {
+const basePath = import.meta.env.VITE_BASE_PATH || '';
 
+export const createHubConnection = (): signalR.HubConnection => {
   return new signalR.HubConnectionBuilder()
-    .withUrl('/chatHub', {
+    .withUrl(`${basePath}/chatHub`, {
       skipNegotiation: true,
       transport: signalR.HttpTransportType.WebSockets,
     })
