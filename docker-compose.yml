@@ -1,21 +1,6 @@
 version: '3.8'
 
 services:
-  webapp:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    ports:
-      - "30000:80"
-    container_name: bull_chat
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Production
-      - DOTNET_CORS_ORIGIN=http://localhost:80
-      - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=bull-chat;Username=postgres;Password=1234
-    depends_on:
-      db:
-        condition: service_healthy
-
   db:
     image: postgres:latest
     container_name: postgres_bull_chat
@@ -31,5 +16,31 @@ services:
       timeout: 3s
       retries: 10
 
-volumes:
-  postgres_data:
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: backend-builder
+    working_dir: /backend
+    command: dotnet ef database update --verbose
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=bull-chat;Username=postgres;Password=1234
+    depends_on:
+      db:
+        condition: service_healthy
+
+  webapp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "30000:80"
+    container_name: bull_chat
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - DOTNET_CORS_ORIGIN=http://localhost:80
+      - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=bull-chat;Username=postgres;Password=1234
+    depends_on:
+      migrate:
+        condition: service_completed_successfully

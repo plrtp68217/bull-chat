@@ -1,4 +1,21 @@
+version: '3.8'
+
 services:
+  db:
+    image: postgres:latest
+    container_name: postgres_bull_chat
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=1234
+      - POSTGRES_DB=bull-chat
+    volumes:
+      - ./bull-chat-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
   migrate:
     build:
       context: .
