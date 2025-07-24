@@ -7,22 +7,23 @@ COPY bull-chat-frontend/ .
 RUN npm run build
 
 # Backend build
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS backend-builder
+FFROM mcr.microsoft.com/dotnet/sdk:9.0 AS backend-builder
 WORKDIR /backend
 
 COPY bull-chat-backend/*.csproj ./
-RUN dotnet restore -v diag
 
+RUN dotnet restore && \
+    dotnet tool install --global dotnet-ef
+
+# Копируем остальные исходники
 COPY bull-chat-backend/ ./
 
-# Сборка и публикация
-RUN dotnet build -c Release --no-restore -v diag && \
-    dotnet publish -c Release -o /output \
-        --no-build \
-        --no-restore \
-        -p:DebugType=None \
-        -p:DebugSymbols=false \
-        -p:UseAppHost=false -v diag
+# Собираем и публикуем приложение в одном шаге без лишнего вывода
+RUN dotnet publish -c Release -o /output \
+    --no-restore \
+    -p:DebugType=None \
+    -p:DebugSymbols=false \
+    -p:UseAppHost=false
 
 # Runtime image
 FROM mcr.microsoft.com/dotnet/aspnet:9.0
