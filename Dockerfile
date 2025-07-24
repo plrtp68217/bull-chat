@@ -10,8 +10,8 @@ RUN npm run build
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS backend-builder
 WORKDIR /backend
 COPY bull-chat-backend/ .
-RUN dotnet restore && \
-    dotnet build -c Release --no-restore && \
+RUN dotnet restore -v diag&& \
+    dotnet build -c Release --no-restore -v diag&& \
     dotnet publish -c Release -o /output \
         --no-build \
         --no-restore \
