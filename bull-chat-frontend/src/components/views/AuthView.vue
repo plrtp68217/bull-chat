@@ -54,8 +54,11 @@ const activeTab = ref('signin');
 
 async function loginUser(dto: IAuthDto) {
   try {
-    const user = await api.auth.login(dto);
-    userStore.setUser(user);
+    const response = await api.auth.login(dto);
+    userStore.setUser(response.user);
+    console.log(response);
+    
+    localStorage.setItem("JWT_TOKEN", response.token);
 
     router.push('/chat');
     flash.success('Отлично, вы авторизованы!');

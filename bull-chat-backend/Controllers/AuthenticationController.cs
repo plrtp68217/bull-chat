@@ -51,20 +51,10 @@ namespace bull_chat_backend.Controllers
             if (string.IsNullOrEmpty(jwtToken))
                 return BadRequest("Бычек пал");
 
-            Response.Cookies.Append(
-                JwtAuthenticationExtensions.JwtCookieName,
-                jwtToken,
-                new CookieOptions
-                {
-                    HttpOnly = true,
-                    Secure = true,
-                    SameSite = SameSiteMode.Strict,
-                    Expires = DateTimeOffset.UtcNow.AddHours(_configuration.GetSection(nameof(JwtOptions)).Get<JwtOptions>()!.ExpiredHours)
-                });
             return Ok(new
             {
                 User = user.ToDto(),
-                Token = jwtToken
+                Token = jwtToken,
             });
         }
 

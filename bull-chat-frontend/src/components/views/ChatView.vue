@@ -142,6 +142,7 @@ async function logOut() {
   try {
     await api.auth.logout();
     await stop(flash);
+    localStorage.removeItem("JWT_TOKEN");
     router.push('/');
   }
   catch (error) {
