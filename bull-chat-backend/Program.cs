@@ -19,7 +19,7 @@ namespace bull_chat_backend
             var builder = WebApplication.CreateBuilder(args);
 
             //psql
-            var connectionString = builder.Configuration.GetConnectionString("PostgreSQLConnection");
+            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
             builder.Services.AddPgsqlConnection(connectionString!);
 
             builder.Services.AddAuthorization();
