@@ -5,7 +5,7 @@ import type { IAuthResponse } from "./interfaces/authorization/IAuthResponse";
 export default {
   async login(dto: IAuthDto): Promise<IAuthResponse> {
     const response = await apiClient.post('/authentication/login', dto);
-    return response.data.user;
+    return response.data;
   },
   async logout(): Promise<string> {
     const response = await apiClient.post('/authentication/logout');

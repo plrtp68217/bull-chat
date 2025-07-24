@@ -19,6 +19,13 @@ namespace bull_chat_backend.Hubs
             HubInvocationContext context,
             Func<HubInvocationContext, ValueTask<object?>> next)
         {
+            var httpContext = context.Context.GetHttpContext();
+            if (httpContext == null)
+            {
+                _logger.LogWarning("HTTP context null");
+                throw new HubException("HTTP context is null");
+            }
+
             var httpUser = context.Context.User;
 
             if (httpUser?.Identity is not { IsAuthenticated: true })
@@ -27,7 +34,12 @@ namespace bull_chat_backend.Hubs
                 throw new HubException("Бычек не авторизован");
             }
 
-            var jwtToken = context.Context.GetHttpContext()?.Request.Cookies[JwtAuthenticationExtensions.JwtCookieName];
+            string jwtToken = string.Empty;
+            if (httpContext.Request.Path.StartsWithSegments(ChatHub.HUB_URI) &&
+                httpContext.Request.Query.TryGetValue("access_token", out var accessToken))
+            {
+                jwtToken = accessToken.ToString();
+            }
 
             if (string.IsNullOrEmpty(jwtToken) || !_tokenMapService.IsTokenActive(jwtToken))
             {

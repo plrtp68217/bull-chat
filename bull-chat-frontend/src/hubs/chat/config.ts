@@ -13,8 +13,8 @@ export const createHubConnection = (): signalR.HubConnection => {
   }
 
   return new signalR.HubConnectionBuilder()
-    // .withUrl('/chatHub', options)
-    .withUrl('http://localhost:5081/api/', options)
+    .withUrl('/chatHub', options)
+    // .withUrl('http://localhost:5081/chatHub', options)
     .withAutomaticReconnect({
       nextRetryDelayInMilliseconds: (retryContext) => {
         return Math.min(retryContext.elapsedMilliseconds * 2, 10000);
