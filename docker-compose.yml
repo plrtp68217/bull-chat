@@ -10,3 +10,4 @@ services:
     container_name: bull_chat
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
+
