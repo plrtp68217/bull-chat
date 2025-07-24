@@ -22,7 +22,7 @@ services:
       dockerfile: Dockerfile
       target: backend-builder
     working_dir: /backend
-    command: dotnet ef database update --verbose
+    command: /root/.dotnet/tools/dotnet-ef database update
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=bull-chat;Username=postgres;Password=1234
