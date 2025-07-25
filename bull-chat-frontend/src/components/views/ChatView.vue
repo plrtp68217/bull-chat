@@ -211,13 +211,11 @@ watch(
 onMounted(async () => {
   try {
     await start(flash);
-    setTimeout(async () => {
-      const messages = await api.messages.getMessages(null);
-      messagesStore.appendMessages(messages);
-
-      initObserver();
-      scrollToBottom();
-    },10000);
+    const messages = await api.messages.getMessages(null);
+    messagesStore.appendMessages(messages);
+    
+    initObserver();
+    scrollToBottom();
   }
   catch (error) {
     flash.error(`${error}`);
