@@ -25,7 +25,7 @@ async function checkAuthAndRedirect() {
   try {
     const user = await api.auth.validate();
     userStore.setUser(user);
-    
+
     router.push('/chat');
   }
   catch {

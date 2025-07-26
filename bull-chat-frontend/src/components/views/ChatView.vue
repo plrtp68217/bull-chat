@@ -103,6 +103,7 @@ import type { MessageApi } from 'naive-ui';
 import MessageComponent from '../chat/MessageComponent.vue';
 import ModalComponent from '../modal/ModalComponent.vue';
 
+import { useUserStore } from '../../stores/user.ts';
 import { useMessagesStore } from '../../stores/messages.ts';
 import { useChatHub } from '../../hubs/chat';
 import { api } from '../../api';
@@ -126,6 +127,8 @@ const flash: MessageApi = useMessage();
 const newContent = ref('');
 const messagesStore = useMessagesStore();
 
+const userStore = useUserStore();
+
 const messagesContainer = ref<HTMLElement | null>(null);
 const isMessagesContainerAtBottom = ref<boolean>(true)
 
@@ -142,7 +145,10 @@ async function logOut() {
   try {
     await api.auth.logout();
     await stop(flash);
+
+    userStore.clearUser;
     localStorage.removeItem("JWT_TOKEN");
+
     router.push('/');
   }
   catch (error) {

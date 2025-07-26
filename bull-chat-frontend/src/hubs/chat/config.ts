@@ -1,6 +1,6 @@
 import * as signalR from "@microsoft/signalr";
 
-const basePath = import.meta.env.VITE_BASE_PATH || '';
+const hubURL = import.meta.env.VITE_HUB_URL || '';
 
 export const createHubConnection = (): signalR.HubConnection => {
   const token = localStorage.getItem('JWT_TOKEN');
@@ -15,7 +15,7 @@ export const createHubConnection = (): signalR.HubConnection => {
   }
 
   return new signalR.HubConnectionBuilder()
-    .withUrl(`${basePath}/chatHub`, options)
+    .withUrl(hubURL, options)
     .withAutomaticReconnect({
       nextRetryDelayInMilliseconds: (retryContext) => {
         return Math.min(retryContext.elapsedMilliseconds * 2, 10000);

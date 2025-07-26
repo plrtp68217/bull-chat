@@ -18,6 +18,6 @@ export default {
   },
   async validate(): Promise<IUser>  {
     const response = await apiClient.post('/authentication/validate');
-    return response.data;
+    return response.data.user;
   }
 }

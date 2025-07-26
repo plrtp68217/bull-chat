@@ -56,7 +56,6 @@ async function loginUser(dto: IAuthDto) {
   try {
     const response = await api.auth.login(dto);
     userStore.setUser(response.user);
-    console.log(response);
     
     localStorage.setItem("JWT_TOKEN", response.token);
 
