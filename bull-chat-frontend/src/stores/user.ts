@@ -17,5 +17,8 @@ export const useUserStore = defineStore('user', {
     setUser(user: IUser) {
       this.user = user;
     },
+    clearUser() {
+      this.user = null;
+    }
   }
 });
