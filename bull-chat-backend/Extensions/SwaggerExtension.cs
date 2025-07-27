@@ -1,14 +1,15 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using bull_chat_backend.Swagger;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace bull_chat_backend.Extensions
 {
-    // СПИЗЖЕНО!
     public static class SwaggerExtensions
     {
-        public static IServiceCollection AddSwaggerWithJwtAuth(this IServiceCollection services, string apiTitle, string apiVersion = "v1")
+        public static IServiceCollection AddSwaggerExtensions(this IServiceCollection services)
         {
+            var apiTitle = "Bull Chat API";
+            var apiVersion = "v1";
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc(apiVersion, new OpenApiInfo { Title = apiTitle, Version = apiVersion });
@@ -16,11 +17,14 @@ namespace bull_chat_backend.Extensions
                 // Добавляем JWT-авторизацию в Swagger
                 c.AddJwtSecurityDefinition();
                 c.AddJwtSecurityRequirement();
+                // Добовляем фильтр для IFormFile
+                //c.OperationFilter<FileUploadOperationFilter>();
             });
 
             return services;
         }
 
+        // Отдельный метод расширения для добавления определения безопасности (JWT)
         private static void AddJwtSecurityDefinition(this SwaggerGenOptions options)
         {
             options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -34,6 +38,7 @@ namespace bull_chat_backend.Extensions
             });
         }
 
+        // Отдельный метод расширения для добавления требования безопасности (JWT)
         private static void AddJwtSecurityRequirement(this SwaggerGenOptions options)
         {
             options.AddSecurityRequirement(new OpenApiSecurityRequirement

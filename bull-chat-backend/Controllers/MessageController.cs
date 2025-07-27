@@ -1,26 +1,26 @@
+using bull_chat_backend.Hubs;
+using bull_chat_backend.ModelBindings.Attributes;
+using bull_chat_backend.Models;
 using bull_chat_backend.Models.DBase;
 using bull_chat_backend.Models.DBase.Enum;
 using bull_chat_backend.Repository.RepositoryInterfaces;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Options;
 
 namespace bull_chat_backend.Controllers
 {
     [Authorize]
     [Route("api/[controller]/")]
     [ApiController]
-    public class MessageController : Controller
+    public class MessageController(IMessageRepository messageRepository) : Controller
     {
-        private readonly IMessageRepository _messageRepository;
-        private readonly IUserRepository _userRepository;
+        private readonly IMessageRepository _messageRepository = messageRepository;
 
         public record DateRangeRequest(DateTime DateStart, DateTime DateEnd);
         public record LastNFromRequest(int Count, DateTime DateFrom);
-        public MessageController(IMessageRepository messageRepository, IUserRepository userRepository)
-        {
-            _messageRepository = messageRepository;
-            _userRepository = userRepository;
-        }
 
         [HttpPost("last-message-date")]
         public async Task<IActionResult> LastMessageDate(CancellationToken token)
@@ -30,7 +30,9 @@ namespace bull_chat_backend.Controllers
         }
 
         [HttpPost("next-message-page-index")]
-        public async Task<IActionResult> NextMessagePage([FromBody] int? messageId  ,CancellationToken token)
+        public async Task<IActionResult> NextMessagePage(
+            [FromBody] int? messageId,
+                       CancellationToken token)
         {
             if (!messageId.HasValue) 
             {
@@ -55,174 +57,48 @@ namespace bull_chat_backend.Controllers
             var messages = await _messageRepository.GetPagedMessages(messageDate.Value, PAGE_SIZE, token);
             return Ok(messages);
         }
-        #region mock
-        [HttpPost("mock")]
-        public async Task<IActionResult> Mock(CancellationToken token)
-        {
-            var content = new List<string>() 
-            {
-                "Привет, дружище! Как дела?",
-                "Привет! Да вот, только что поел сена. А ты?",
-                "Я тоже! Но знаешь, мне кажется, что сено стало менее вкусным.",
-                "Согласен! Может, нам стоит попробовать что-то новенькое?",
-                "Например, свежую траву? Она всегда такая сочная!",
-                "О, да! А ты слышал, что на лугу растет новая трава?",
-                "Нет, не слышал! Где именно?",
-                "За тем холмом, где мы обычно пасемся.",
-                "Надо будет проверить! А ты пробовал ту морковку, что нам принесли?",
-                "Да, она была просто великолепна! Я даже не заметил, как съел всю!",
-                "Ха-ха, я тоже! А потом чуть не попал в неловкую ситуацию, когда увидел, что у меня на морде осталась морковная ботва.",
-                "О, это было бы смешно! Я бы не удержался от смеха!",
-                "Да, но потом я заметил, что у всех остальных тоже были остатки еды на морде.",
-                "Это значит, что мы не одни такие!",
-                "Верно! А ты когда-нибудь пробовал комбинировать сено с морковкой?",
-                "Нет, но звучит интересно! Может, это будет наш следующий кулинарный эксперимент?",
-                "Давай! А если получится вкусно, мы сможем открыть свой ресторан!",
-                "Ха-ха, Бычий Бистро!",
-                "Да, и будем подавать только самые вкусные блюда!",
-                "А что насчет десертов? Я бы хотел попробовать сладкие яблоки!",
-                "О, яблоки! Это отличная идея!",
-                "А ты знаешь, что я однажды съел слишком много яблок и потом не мог остановиться?",
-                "Ха-ха, это было бы неловко!",
-                "Да, я даже не заметил, как попал в кусты!",
-                "О, это было бы зрелищно!",
-                "А ты когда-нибудь застревал в кустах?",
-                "Один раз! Я пытался достать вкусный листик, и вдруг...",
-                "И вдруг что?",
-                "Я застрял! Пришлось звать на помощь!",
-                "Ха-ха, это было бы весело!",
-                "Да, но потом я был так смущен, что не знал, куда смотреть!",
-                "Понимаю! А что ты думаешь о свежих овощах?",
-                "Они тоже отличные! Особенно, если их нарезать!",
-                "Да, и с соусом!",
-                "О, соус! Это добавляет вкус к любому блюду!",
-                "А ты когда-нибудь пробовал соус из трав?",
-                "Нет, но звучит заманчиво!",
-                "Давай попробуем сделать его вместе!",
-                "Отличная идея!",
-                "А если не получится, мы просто скажем, что это новый рецепт!",
-                "Ха-ха, точно!",
-                "А ты знаешь, что я однажды пытался готовить, и все закончилось катастрофой?",
-                "О, расскажи!",
-                "Я перепутал соль с сахаром и сделал ужасный десерт.",
-                "Ха-ха, это было бы весело видеть!",
-                "Да, все мои друзья не могли остановиться от смешков!",
-                "Представляю! А как ты потом объяснял это?",
-                "Я просто сказал, что это новый тренд в кулинарии!",
-                "Ха-ха, гениально! Может, нам стоит тоже придумать что-то необычное?",
-                "Например, сэндвич из сена и морковки?",
-                "О, это звучит странно, но интересно!",
-                "Да, и если кто-то спросит, мы скажем, что это бычий деликатес!",
-                "Ха-ха, точно! А ты когда-нибудь пробовал делать сено с начинкой?",
-                "Нет, но это звучит как вызов!",
-                "Давай попробуем!",
-                "А что, если начинкой будут яблоки и морковка?",
-                "Это будет настоящая бомба!",
-                "А если не получится, мы просто скажем, что это экспериментальная кухня.",
-                "Ха-ха, мы настоящие кулинары!",
-                "А ты знаешь, что я однажды пытался сделать салат и перепутал травы?",
-                "О, это было бы интересно!",
-                "Да, я добавил слишком много горькой травы и чуть не испортил все!",
-                "Ха-ха, это было бы неловко!",
-                "Да, но потом я добавил немного моркови, и все стало лучше!",
-                "Вот это находчивость!",
-                "А ты когда-нибудь пробовал делать смузи из трав?",
-                "Нет, но это звучит странно и весело!",
-                "Давай попробуем!",
-                "А если получится невкусно, мы просто добавим больше моркови!",
-                "Ха-ха, морковь спасет любую ситуацию!",
-                "А ты знаешь, что я однажды пытался сделать морковный торт?",
-                "О, и как это прошло?",
-                "Я забыл добавить сахар, и он получился ужасным!",
-                "Ха-ха, это было бы весело видеть!",
-                "Да, и я не знал, как это объяснить своим друзьям!",
-                "Просто скажи, что это диетический вариант!",
-                "Ха-ха, точно!",
-                "А ты когда-нибудь пробовал делать закуски из сена?",
-                "Нет, но это звучит как что-то необычное!",
-                "Давай попробуем!",
-                "А если не получится, мы просто скажем, что это новая мода.",
-                "Ха-ха, мы настоящие кулинарные гении!",
-                "А ты знаешь, что я однажды пытался сделать пиццу из трав?",
-                "И как это прошло?",
-                "Я забыл добавить тесто, и у меня получилась просто куча трав!",
-                "Ха-ха, это было бы смешно!",
-                "Да, и я не знал, как это объяснить!",
-                "Просто скажи, что это веганская пицца!",
-                "Ха-ха, точно!",
-                "А ты когда-нибудь пробовал делать десерт из сена?",
-                "Нет, но это звучит как вызов!",
-                "Давай попробуем!",
-                "А если не получится, мы просто скажем, что это экспериментальный десерт.",
-                "Ха-ха, мы настоящие кулинары!",
-                "А ты знаешь, что я однажды пытался сделать салат из всего, что нашел?",
-                "О, и как это прошло?",
-                "Я добавил все, что нашел: сено, траву, морковь и даже немного яблок!",
-                "Ха-ха, это звучит как настоящий салат сюрприз!",
-                "Да, и я не знал, как это объяснить своим друзьям!",
-                "Просто скажи, что это кулинарный эксперимент!",
-                "Ха-ха, точно! А ты когда-нибудь пробовал делать коктейли из трав?",
-                "Нет, но это звучит интересно!",
-                "Давай попробуем!",
-                "А если не получится, мы просто скажем, что это новый тренд.",
-                "Ха-ха, мы настоящие кулинары!",
-                "А ты знаешь, что я однажды пытался сделать морковный суп?",
-                "И как это прошло?",
-                "Я забыл добавить воду, и у меня получилась просто морковка!",
-                "Ха-ха, это было бы смешно!",
-                "Да, и я не знал, как это объяснить!",
-                "Просто скажи, что это диетический суп!",
-                "Ха-ха, точно!",
-                "А ты когда-нибудь пробовал делать закуски из яблок?",
-                "Нет, но это звучит как что-то необычное!",
-                "Давай попробуем!",
-                "А если не получится, мы просто скажем, что это новая мода.",
-                "Ха-ха, мы настоящие кулинарные гении!",
-                "А ты знаешь, что я однажды пытался сделать десерт из моркови и сена?",
-                "И как это прошло?",
-                "Я забыл добавить сахар, и он получился ужасным!",
-                "Ха-ха, это было бы весело видеть!",
-                "Да, и я не знал, как это объяснить!",
-                "Просто скажи, что это здоровый десерт!",
-                "Ха-ха, точно!",
-                "А ты когда-нибудь пробовал делать пиццу из моркови?",
-                "Нет, но это звучит как вызов!",
-                "Давай попробуем!",
-                "А если не получится, мы просто скажем, что это веганская пицца.",
-                "Ха-ха, мы настоящие кулинары!",
-                "А ты знаешь, что я однажды пытался сделать салат из всего, что нашел?",
-                "И как это прошло?",
-                "Я добавил все, что нашел: сено, траву, морковь и даже немного яблок!",
-                "Ха-ха, это звучит как настоящий салат сюрприз!",
-                "Да, и я не знал, как это объяснить своим друзьям!",
-                "Просто скажи, что это кулинарный эксперимент!",
-                "Ха-ха, точно!",
-                "А ты когда-нибудь пробовал делать коктейли из трав?",
-                "Нет, но это звучит интересно!",
-                "Давай попробуем!",
-                "А если не получится, мы просто скажем, что это новый тренд.",
-                "Ха-ха, мы настоящие кулинары!",
-                "А ты знаешь, что я однажды пытался сделать морковный суп?",
-                "И как это прошло?",
-                "Я забыл добавить воду, и у меня получилась просто морковка!",
-            };
-            var dateInterval = 7;
-            var date = DateTime.UtcNow.AddDays(-dateInterval);
-            var daysCount = (int) MathF.Ceiling(content.Count / dateInterval);
-            var users = await _userRepository.GetAllAsync(token);
-            var bull1 = users.Skip(0).First();
-            var bull2 = users.Skip(1).First();
-            var msgs = Enumerable.Range(0, content.Count).Select(s => 
-            {
-                var swap = s % daysCount == 0;
-                var user =  swap ? bull1 : bull2;
-                date = date.AddDays(swap ? 1 : 0);
-                return new Message(user, date, ContentType.Text, content[s]);
-            });
 
-            await _messageRepository.AddRangeAsync(msgs , token);
-            return Ok();
+        // Костыл, СВАГА не понимает IFormFile, но зато обертку понимает (походе дебил)
+        public record UploadImageRequest(IFormFile File);
+        [HttpPost("media/upload-image")]
+        public async Task<IActionResult> UploadImage(
+            [UserFromRequest] User user,
+            [FromForm]        UploadImageRequest file,
+            [FromServices]    IOptions<ImageStorageOptions> storageOptions,
+            [FromServices]    IHubContext<ChatHub, IChatHub> hubContext,
+                              CancellationToken token)
+        {
+            var options = storageOptions.Value;
+
+            if (file == null || file.File.Length == 0)
+                return BadRequest("Файл не выбран");
+
+            if (file.File.Length > options.MaxImageSizeBytes)
+                return BadRequest("Размер изображения превышает допустимый лимит.");
+
+            var fileExtension = Path.GetExtension(file.File.FileName).ToLowerInvariant();
+            if (!options.AllowedImageExtensions.Contains(fileExtension))
+                return BadRequest("Недопустимый формат изображения.");
+
+            var fileName = $"{Guid.NewGuid()}{fileExtension}";
+            var savePath = Path.Combine(Directory.GetCurrentDirectory(), options.ImageFolder);
+            Directory.CreateDirectory(savePath);
+            var filePath = Path.Combine(savePath, fileName);
+
+            await using var stream = new FileStream(filePath, FileMode.Create);
+            await file.File.CopyToAsync(stream, token);
+
+            var relativePath = $"{options.ImageRequestPath}/{fileName}".Replace('\\', '/');
+
+            var message = new Message(user, DateTime.UtcNow, ContentType.Image, relativePath);
+            await _messageRepository.AddAsync(message, token);
+
+            await hubContext.Clients.All.ReceiveMessage(message.ToDto());
+
+            return Ok(message.ToDto());
         }
-        #endregion
+
+
+
     }
 }
