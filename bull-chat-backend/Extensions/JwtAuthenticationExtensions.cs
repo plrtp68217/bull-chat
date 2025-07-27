@@ -8,52 +8,6 @@ using System.Text;
 namespace bull_chat_backend.Extensions
 {
 
-    /*
-                                                ┌───────────────────────────┐
-                                                │      HTTP-запрос          │
-                                                │  (с куки или query токен) │
-                                                └────────────┬──────────────┘
-                                                             │
-                                                             ▼
-                                                ┌───────────────────────────┐
-                                                │ UseAuthentication()       │
-                                                │  └─ JwtBearerHandler      │
-                                                │     └─ OnMessageReceived: │
-                                                │        ├─ Извлекаем токен │
-                                                │        │   ├─ из query    │
-                                                │        │   └─ или из куки │
-                                                └────────────┬──────────────┘
-                                                             │
-                                                             ▼
-                                                ┌─────────────────────────────┐
-                                                │  TokenValidationParameters  │
-                                                │  └─ Проверка:               │
-                                                │     ├─ Подпись              │
-                                                │     ├─ Issuer / Audience    │
-                                                │     ├─ Lifetime             │
-                                                └────────────┬────────────────┘
-                                                             │
-                                                             ▼
-                                                ┌─────────────────────────────┐
-                                                │       OnTokenValidated      │
-                                                └────────────┬────────────────┘
-                                                             │
-                                                             ▼
-                                                ┌───────────────────────────┐
-                                                │ UseAuthorization()        │
-                                                │  └─ [Authorize]           │
-                                                │     ├─ Проверка есть ли   │
-                                                │     │   ClaimsPrincipal   │
-                                                │     └─ Роли/Политики?     │
-                                                └────────────┬──────────────┘
-                                                             │
-                                                             ▼
-                                                ┌───────────────────────────┐
-                                                │                           │
-                                                │   Контроллер / Хендлер    │
-                                                │                           │
-                                                └───────────────────────────┘
-    */
 
     public static class JwtAuthenticationExtensions
     {
@@ -93,7 +47,7 @@ namespace bull_chat_backend.Extensions
                         OnMessageReceived = context =>
                         {
                             var request = context.Request;
-                            var tokenMap = context.HttpContext.RequestServices.GetRequiredService<TokenMapService>();
+                            var tokenMap = context.HttpContext.RequestServices.GetRequiredService<SessionService>();
 
                             string? token = string.Empty;
 

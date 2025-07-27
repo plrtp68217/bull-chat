@@ -8,9 +8,9 @@ namespace bull_chat_backend.ModelBindings
     /// Модельный биндер, извлекающий пользователя из JWT-токена, переданного в заголовке Authorization.
     /// Используется в сочетании с атрибутом <c>[UserFromRequest]</c> для автоматической подстановки <see cref="User"/>.
     /// </summary>
-    public class UserFromRequestModelBinder(TokenMapService tokenMapService, ILogger<UserFromRequestModelBinder> logger) : IModelBinder
+    public class UserFromRequestModelBinder(SessionService tokenMapService, ILogger<UserFromRequestModelBinder> logger) : IModelBinder
     {
-        private readonly TokenMapService _tokenMapService = tokenMapService;
+        private readonly SessionService _tokenMapService = tokenMapService;
         private readonly ILogger<UserFromRequestModelBinder> _logger = logger;
 
         public Task BindModelAsync(ModelBindingContext bindingContext)

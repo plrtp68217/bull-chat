@@ -9,7 +9,7 @@ namespace bull_chat_backend.Services
     {
         private readonly ILogger<UserAuthenticationService> _logger;
         private readonly IJwtGenerator<User> _jwtGenerator;
-        private readonly TokenMapService _tokenMap;
+        private readonly SessionService _sessionService;
         private readonly IPasswordHasher _passwordHasher;
         private readonly IUserRepository _userRepository;
 
@@ -17,12 +17,12 @@ namespace bull_chat_backend.Services
             IPasswordHasher passwordHasher,
             IUserRepository userRepository,
             IJwtGenerator<User> jwtProvider,
-            TokenMapService tokenMap,
+            SessionService tokenMap,
             ILogger<UserAuthenticationService> logger)
         {
             _logger = logger;
             _jwtGenerator = jwtProvider;
-            _tokenMap = tokenMap;
+            _sessionService = tokenMap;
             _passwordHasher = passwordHasher;
             _userRepository = userRepository;
         }
@@ -50,12 +50,12 @@ namespace bull_chat_backend.Services
             }
             var jwtToken = _jwtGenerator.GenerateToken(user);
 
-            _tokenMap.AddUserSession(user,jwtToken);
+            _sessionService.AddUserSession(user,jwtToken);
 
             return new LoginResponse(jwtToken, user);
         }
 
-        public void Logout(User user) => _tokenMap.RemoveUserSession(user);
+        public void Logout(User user) => _sessionService.RemoveUserSession(user);
 
         public async Task<User> RegisterAsync(string name, string password, CancellationToken token)
         {

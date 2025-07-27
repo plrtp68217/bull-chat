@@ -75,28 +75,28 @@ namespace bull_chat_backend.Repository
 
             return lastMessage;
         }
-        public async Task<IList<MessageDto>> GetPagedMessages(DateTime cursor, int pageSize, CancellationToken token)
-            => await _context.Message
-              .AsNoTracking()
-              .Include(m => m.User)
-              .Include(m => m.Content)
-              .Where(m => m.Date <= cursor)
-              .OrderByDescending(m => m)
-              .Take(pageSize)
-              .OrderBy(m => m)
-              .Select(m => m.ToDto())
-              .ToListAsync(token);
+        public async Task<IList<MessageDto>> GetPagedMessages(DateTime cursor, int pageSize, CancellationToken token) 
+            => await _context.Message.AsNoTracking()
+                                     .Include(m => m.User)
+                                     .Include(m => m.Content)
+                                     .Where(m => m.Date < cursor)
+                                     .OrderByDescending(m => m.Date)
+                                     .ThenByDescending(m => m.Id)
+                                     .Take(pageSize)
+                                     .OrderBy(m => m.Date)
+                                     .ThenBy(m => m.Id)
+                                     .Select(m => m.ToDto())
+                                     .ToListAsync(token);
 
         public async Task<IList<MessageDto>> GetPagedMessages(int cursorIndex, int pageSize, CancellationToken token)
-              => await _context.Message
-                .AsNoTracking()
-                .Include(m => m.User)
-                .Include(m => m.Content)
-                .Where(m => m.Id < cursorIndex)
-                .OrderByDescending(m => m)
-                .Take(pageSize)
-                .OrderBy(m => m)
-                .Select(m => m.ToDto())
-                .ToListAsync(token);
+              => await _context.Message.AsNoTracking()
+                                       .Include(m => m.User)
+                                       .Include(m => m.Content)
+                                       .Where(m => m.Id < cursorIndex)
+                                       .OrderByDescending(m => m.Id)
+                                       .Take(pageSize)
+                                       .OrderBy(m => m.Id)
+                                       .Select(m => m.ToDto())
+                                       .ToListAsync(token);
     }
 }

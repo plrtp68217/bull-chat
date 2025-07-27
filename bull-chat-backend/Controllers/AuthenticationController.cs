@@ -14,12 +14,12 @@ namespace bull_chat_backend.Controllers
     [ApiController]
     public class AuthenticationController(ILogger<AuthenticationController> logger,
         IUserAuthenticationService userRegistrationService,
-        TokenMapService tokenMapService,
+        SessionService tokenMapService,
         IConfiguration configuration) : ControllerBase
     {
         private readonly ILogger<AuthenticationController> _logger = logger;
         private readonly IUserAuthenticationService _userAuthenticationService = userRegistrationService;
-        private readonly TokenMapService _tokenMapService = tokenMapService;
+        private readonly SessionService _tokenMapService = tokenMapService;
         private readonly IConfiguration _configuration = configuration;
 
         [HttpPost("register")]

@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using bull_chat_backend.Extensions;
 using Microsoft.AspNetCore.SignalR;
 using bull_chat_backend.ModelBindings;
+using bull_chat_backend.Hubs.Fitler;
 namespace bull_chat_backend
 {
     public class Program
@@ -40,7 +41,7 @@ namespace bull_chat_backend
 
             builder.Services.AddControllers();
             builder.Services.AddSingleton<IUserIdProvider, ChatHubUserIdProvider>();
-            builder.Services.AddSingleton<TokenMapService>();
+            builder.Services.AddSingleton<SessionService>();
             builder.Services.AddTransient<IUserAuthenticationService, UserAuthenticationService>();
             builder.Services.AddTransient<IJwtGenerator<User>, JwtGeneratorService>();
             builder.Services.AddTransient<IUserRepository, UserRepository>();

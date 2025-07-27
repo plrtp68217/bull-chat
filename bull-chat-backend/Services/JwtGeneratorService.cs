@@ -9,8 +9,9 @@ using System.Text;
 
 namespace bull_chat_backend.Services
 {
-    public class JwtGeneratorService(IOptions<JwtOptions> options, ILogger<JwtGeneratorService> logger) : IJwtGenerator<User>
+    public class JwtGeneratorService(IOptions<JwtOptions> options,IDateTimeProvider dateTimeProvider, ILogger<JwtGeneratorService> logger) : IJwtGenerator<User>
     {
+        private readonly IDateTimeProvider _dateTimeProvider = dateTimeProvider;
         private readonly ILogger<JwtGeneratorService> _logger = logger;
         private readonly JwtOptions _options = options.Value;
 
@@ -72,7 +73,7 @@ namespace bull_chat_backend.Services
                 audience: _options.Audience,
                 issuer: _options.Issuer,
                 signingCredentials: signingCredentials,
-                expires: DateTime.UtcNow.AddHours(_options.ExpiredHours)
+                expires: _dateTimeProvider.UtcNow.AddHours(_options.ExpiredHours)
                 );
 
             var tokenString = new JwtSecurityTokenHandler().WriteToken(token); 

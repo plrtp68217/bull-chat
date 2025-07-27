@@ -1,5 +1,5 @@
 ﻿using bull_chat_backend.Models.DBase;
-using Microsoft.Extensions.Logging;
+using bull_chat_backend.Services.Interfaces;
 using System.Collections.Concurrent;
 using System.IdentityModel.Tokens.Jwt;
 
@@ -9,10 +9,11 @@ namespace bull_chat_backend.Services
     /// Сервис управления сессиями пользователей и маппингом JWT на пользователей.
     /// Хранит активные JWT-токены и связанные с ними объекты <see cref="User"/>.
     /// </summary>
-    public class TokenMapService(ILogger<TokenMapService> logger)
+    public class SessionService(IDateTimeProvider dateTimeProvider, ILogger<SessionService> logger)
     {
         private readonly ConcurrentDictionary<string, User> _jwtUserMap = new();
-        private readonly ILogger<TokenMapService> _logger = logger;
+        private readonly IDateTimeProvider _dateTimeProvider = dateTimeProvider;
+        private readonly ILogger<SessionService> _logger = logger;
 
         /// <summary>
         /// Добавляет сессию пользователя в карту токенов.
@@ -91,15 +92,6 @@ namespace bull_chat_backend.Services
         }
 
         /// <summary>
-        /// Очищает все активные сессии.
-        /// </summary>
-        public void ClearAllSessions()
-        {
-            _jwtUserMap.Clear();
-            _logger.LogInformation("Все сессии очищены");
-        }
-
-        /// <summary>
         /// Проверяет, активна ли сессия пользователя.
         /// </summary>
         /// <param name="user">Пользователь.</param>
@@ -151,6 +143,8 @@ namespace bull_chat_backend.Services
             return true;
         }
 
+        public bool IsTokenNotActive(string jwt) => !IsTokenActive(jwt);
+
         /// <summary>
         /// Проверяет, истёк ли срок действия JWT.
         /// </summary>
@@ -162,7 +156,7 @@ namespace bull_chat_backend.Services
             {
                 var handler = new JwtSecurityTokenHandler();
                 var token = handler.ReadJwtToken(jwt);
-                return token.ValidTo < DateTime.UtcNow;
+                return token.ValidTo < _dateTimeProvider.UtcNow;
             }
             catch (Exception ex)
             {

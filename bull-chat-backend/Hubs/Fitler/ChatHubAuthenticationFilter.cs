@@ -1,28 +1,26 @@
 ﻿using Microsoft.AspNetCore.SignalR;
-using System.Security.Claims;
 using bull_chat_backend.Services;
-using bull_chat_backend.Extensions;
 using bull_chat_backend.Models.DBase;
-using Microsoft.Extensions.Logging;
 
-namespace bull_chat_backend.Hubs
+namespace bull_chat_backend.Hubs.Fitler
 {
     public class ChatHubAuthenticationFilter(
-        TokenMapService tokenMap, 
+        SessionService tokenMap, 
         ILogger<ChatHubAuthenticationFilter> logger) : IHubFilter
     {
-        private readonly TokenMapService _tokenMapService = tokenMap;
+        private readonly SessionService _tokenMapService = tokenMap;
         private readonly ILogger<ChatHubAuthenticationFilter> _logger = logger;
         public const string CURRENT_USER = "CurrentUser";
+        private const string URI_PARAM_NAME = "access_token";
 
         public async ValueTask<object?> InvokeMethodAsync(
             HubInvocationContext context,
             Func<HubInvocationContext, ValueTask<object?>> next)
         {
             var httpContext = context.Context.GetHttpContext();
-            if (httpContext == null)
+            if (httpContext is null)
             {
-                _logger.LogWarning("HTTP context null");
+                _logger.LogError("HTTP context null");
                 throw new HubException("HTTP context is null");
             }
 
@@ -30,20 +28,20 @@ namespace bull_chat_backend.Hubs
 
             if (httpUser?.Identity is not { IsAuthenticated: true })
             {
-                _logger.LogWarning("Попытка вызова метода неавторизованным бычеком (был вышвырнут)");
+                _logger.LogError("Попытка вызова метода неавторизованным бычеком (был вышвырнут)");
                 throw new HubException("Бычек не авторизован");
             }
 
             string jwtToken = string.Empty;
             if (httpContext.Request.Path.StartsWithSegments(ChatHub.HUB_URI) &&
-                httpContext.Request.Query.TryGetValue("access_token", out var accessToken))
+                httpContext.Request.Query.TryGetValue(URI_PARAM_NAME, out var accessToken))
             {
                 jwtToken = accessToken.ToString();
             }
 
-            if (string.IsNullOrEmpty(jwtToken) || !_tokenMapService.IsTokenActive(jwtToken))
+            if (string.IsNullOrEmpty(jwtToken) || _tokenMapService.IsTokenNotActive(jwtToken))
             {
-                _logger.LogWarning("Недействительный или отозванный токен: {Token}", jwtToken);
+                _logger.LogError("Недействительный или отозванный токен: {Token}", jwtToken);
                 throw new HubException("Токен недействителен или отозван (бычек спекся)");
             }
 
@@ -51,7 +49,7 @@ namespace bull_chat_backend.Hubs
 
             if (user == null)
             {
-                _logger.LogWarning("Бычек по токену не найден: {Token}", jwtToken);
+                _logger.LogError("Бычек по токену не найден: {Token}", jwtToken);
                 throw new HubException("Бычек не найден");
             }
 
@@ -63,13 +61,10 @@ namespace bull_chat_backend.Hubs
 
     public static class HubCallerContextExtensions
     {
-        public static User GetCurrentUser(this HubCallerContext context)
+        public static User UserFromContext(this HubCallerContext context)
         {
-            if (context.Items.TryGetValue(ChatHubAuthenticationFilter.CURRENT_USER, out var value) &&
-                value is User user)
-            {
+            if (context.Items.TryGetValue(ChatHubAuthenticationFilter.CURRENT_USER, out var value) && value is User user)
                 return user;
-            }
 
             throw new HubException("Бычек не найден в контексте подключения");
         }
