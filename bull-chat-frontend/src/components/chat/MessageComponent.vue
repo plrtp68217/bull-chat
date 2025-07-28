@@ -118,23 +118,22 @@ function datesIsNotEquals(date1: Date, date2: Date) {
 
 .message-bubble.me {
   align-self: flex-end;
-  background-color: #1890ff;
+  background-color: #188fff80;
   border-bottom-right-radius: 0;
 }
 
 .message-bubble.not_me{
   align-self: flex-start;
-  background-color: #494646fa;
+  background-color: #4946467e;
   border-bottom-left-radius: 0;
 }
 
 .message-author {
   font-size: 1.1rem;
-  font-weight: 600;
 }
 
 .message-content {
-  margin-bottom: 4px;
+  margin: 4px 0;
 }
 
 .message-time {
