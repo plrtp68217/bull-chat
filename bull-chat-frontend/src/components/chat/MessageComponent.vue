@@ -67,11 +67,15 @@ defineProps({
 
 function formateDateToTime(date: Date) {
   return new Date(date)
-    .toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    .toLocaleTimeString([], { 
+      hour: '2-digit', 
+      minute: '2-digit' 
+    })
 }
 
 function formateDate(date: Date) {
-  return new Date(date).toLocaleDateString(undefined, {
+  return new Date(date)
+    .toLocaleDateString([], {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
@@ -103,7 +107,7 @@ function datesIsNotEquals(date1: Date, date2: Date) {
 }
 
 .message-bubble {
-  max-width: 80%;
+  max-width: 60%;
   padding: 10px 14px;
   border-radius: 18px;
   margin-bottom: 12px;
@@ -129,7 +133,6 @@ function datesIsNotEquals(date1: Date, date2: Date) {
 }
 
 .message-content {
-  max-width: 600px;
   margin-bottom: 4px;
 }
 
