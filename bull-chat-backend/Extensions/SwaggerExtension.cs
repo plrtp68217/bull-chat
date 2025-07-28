@@ -1,5 +1,4 @@
-﻿using bull_chat_backend.Swagger;
-using Microsoft.OpenApi.Models;
+﻿using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace bull_chat_backend.Extensions

@@ -4,8 +4,8 @@ using bull_chat_backend.Models;
 using bull_chat_backend.Models.DBase;
 using bull_chat_backend.Models.DBase.Enum;
 using bull_chat_backend.Repository.RepositoryInterfaces;
+using bull_chat_backend.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
@@ -15,9 +15,10 @@ namespace bull_chat_backend.Controllers
     [Authorize]
     [Route("api/[controller]/")]
     [ApiController]
-    public class MessageController(IMessageRepository messageRepository) : Controller
+    public class MessageController(IMessageRepository messageRepository , IDateTimeProvider dateTimeProvider) : Controller
     {
         private readonly IMessageRepository _messageRepository = messageRepository;
+        private readonly IDateTimeProvider _dateTimeProvider = dateTimeProvider;
 
         public record DateRangeRequest(DateTime DateStart, DateTime DateEnd);
         public record LastNFromRequest(int Count, DateTime DateFrom);
@@ -90,7 +91,7 @@ namespace bull_chat_backend.Controllers
 
             var relativePath = $"{options.ImageRequestPath}/{fileName}".Replace('\\', '/');
 
-            var message = new Message(user, DateTime.UtcNow, ContentType.Image, relativePath);
+            var message = new Message(user, _dateTimeProvider.UtcNow, ContentType.Image, relativePath);
             await _messageRepository.AddAsync(message, token);
 
             await hubContext.Clients.All.ReceiveMessage(message.ToDto());

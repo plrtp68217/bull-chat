@@ -54,24 +54,26 @@ namespace bull_chat_backend.Tests.Repository
         }
 
         /// <summary>
+        /// 
         /// Тест метода GetPagedMessages(int cursorIndex, int pageSize)
         /// 
         /// Проверяем, что метод корректно возвращает `pageSize` сообщений, 
         /// которые имеют ID < cursorIndex, отсортированные по возрастанию.
+        /// Условия:
+        ///     pageSize = 3
+        ///     cursorIndex = 6
         /// 
-        /// cursorIndex = 6, pageSize = 3 → должны вернуться сообщения с ID: 3, 4, 5
-        /// 
-        /// Графическое представление:
-        /// 
-        /// Все сообщения:
-        /// [1] [2] [3] [4] [5] [6] [7] [8] [9] [10]
-        ///              ↑
-        ///            cursor = 6
-        /// 
-        /// Выбираем ID < 6             → [1] [2] [3] [4] [5]
-        /// Сортировка по убыванию      → [5] [4] [3] [2] [1]
-        /// Take(3)                     → [5] [4] [3]
-        /// Сортировка по возрастанию   → [3] [4] [5]
+        /// Генерация сообщений:
+        ///     Message 01 → 00
+        ///     Message 02 → 01
+        ///     Message 03 → 02 [+]
+        ///     Message 04 → 03 [+]
+        ///     Message 05 → 04 [+]
+        ///     Message 06 → 05 ← cursorIndex
+        ///     Message 07 → 06
+        ///     Message 08 → 07
+        ///     Message 09 → 08
+        ///     Message 10 → 09
         /// </summary>
         [Fact]
         public async Task GetPagedMessages_ById_ReturnsCorrectPage()
@@ -95,34 +97,28 @@ namespace bull_chat_backend.Tests.Repository
         }
 
         /// <summary>
+        /// 
         /// Тест метода GetPagedMessages(DateTime cursorDate, int pageSize)
         /// 
         /// Проверяем, что метод корректно возвращает `pageSize` сообщений, 
-        /// у которых Date <= cursorDate, отсортированных по возрастанию даты.
+        /// у которых Date < cursorDate, отсортированных по возрастанию даты.
+        /// Условия:
+        ///     pageSize = 4
+        ///     cursorDate = 11:55
         /// 
-        /// Допустим now = 12:00, тогда создаются сообщения от 11:41 (Message 1) до 11:50 (Message 10)
-        /// cursorDate = 11:55 → попадут все сообщения
+        /// Генерация сообщений:
+        ///     Message 01 → 11:41
+        ///     Message 02 → 11:42
+        ///     Message 03 → 11:43
+        ///     Message 04 → 11:44
+        ///     Message 05 → 11:55 
+        ///     Message 06 → 11:56 
+        ///     Message 07 → 11:57 [+]
+        ///     Message 08 → 11:58 [+]
+        ///     Message 09 → 11:59 [+]
+        ///     Message 10 → 11:50 [+]
         /// 
-        /// Отбираем последние 4 по дате:
-        /// 11:50 - [Message 10]  
-        /// 11:49 - [Message 09] 
-        /// 11:48 - [Message 08] 
-        /// 11:47 - [Message 07] 
-        /// 
-        /// Возвращаем в хронологическом порядке:
-        /// [Message 07] → 11:47
-        /// [Message 08] → 11:48
-        /// [Message 09] → 11:49
-        /// [Message 10] → 11:50
-        /// 
-        /// Графическое представление:
-        /// 
-        /// Timeline:           now = 12:00
-        /// [M1][M2]...[M6][M7][M8][M9][M10]
-        ///                   ↑
-        ///               cursorDate = 11:55
-        /// 
-        /// Выбираем последние 4 до этой точки, по дате → [M10, M9, M8, M7] → пересортировано → [M7–M10]
+        ///                  11:55 ← cursorDate
         /// </summary>
         [Fact]
         public async Task GetPagedMessages_ByDate_ReturnsCorrectPage()
@@ -141,38 +137,46 @@ namespace bull_chat_backend.Tests.Repository
 
             int pageSize = 4;
             var token = CancellationToken.None;
-            DateTime cursorDate = now.AddMinutes(-5); // 11:55
+            DateTime cursorDate = now.AddMinutes(-5);       // 11:55
 
             // Act
             var result = await _repository.GetPagedMessages(cursorDate, pageSize, token);
 
             // Assert
             Assert.Equal(pageSize, result.Count);
-            Assert.True(result.All(m => m.Date <= cursorDate));
-            Assert.Equal("Message 7", result[0].Content?.Item); // 11:47
-            Assert.Equal("Message 10", result[3].Content?.Item); // 11:50
+            Assert.True(result.All(m => m.Date < cursorDate));
+            Assert.Equal("Message 7", result[0].Content?.Item);
+            Assert.Equal("Message 10", result[3].Content?.Item);
         }
 
+        /// <summary>
+        /// 
+        /// Тест метода GetPagedMessages(DateTime cursorDate, int pageSize)
+        /// 
+        /// Проверяем, что метод корректно возвращает `pageSize` сообщений, 
+        /// у которых Date < cursorDate, отсортированных по возрастанию даты.
+        /// Условия:
+        ///     pageSize = 2
+        ///     cursorDate = 11:52
+        /// 
+        /// Генерация сообщений:
+        ///     Message 01 → 11:46
+        ///     Message 02 → 11:47
+        ///     Message 03 → 11:48
+        ///     Message 04 → 11:49
+        ///     Message 05 → 11:50 [+]
+        ///     Message 06 → 11:51 [+]
+        ///     Message 07 → 11:52 ← cursorDate
+        ///     Message 08 → 11:53 
+        ///     Message 09 → 11:54
+        ///     Message 10 → 11:55 
+        /// </summary>
         [Fact]
         public async Task GetPagedMessages_ByDate_ExcludesMessagesEqualToCursorDate()
         {
             // Arrange
             var now = new DateTime(2025, 1, 1, 12, 0, 0); // Текущее "now" — 12:00
             _mockDateTimeProvider.Setup(x => x.UtcNow).Returns(now);
-
-            /*
-                Генерация сообщений:
-                Message 01 → 11:46
-                Message 02 → 11:47
-                Message 03 → 11:48
-                Message 04 → 11:49
-                Message 05 → 11:50
-                Message 06 → 11:51
-                Message 07 → 11:52 ← cursorDate
-                Message 08 → 11:53 
-                Message 09 → 11:54
-                Message 10 → 11:55 
-            */
             await Seed10MessagesAsync(now.AddMinutes(-15)); // от 11:46 до 11:55
 
             int pageSize = 2;

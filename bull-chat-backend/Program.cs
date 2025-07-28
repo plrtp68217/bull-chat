@@ -28,20 +28,18 @@ namespace bull_chat_backend
 
             //swagger
             builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerExtensions();
 
             builder.Services
                 .ConfigureJwtOptions(builder.Configuration)
                 .AddJwtAuthentication(builder.Configuration);
 
-            builder.Services.AddSwaggerExtensions();
 
 
-            builder.Services.AddSignalR(options =>
-            {
-                options.AddFilter<ChatHubAuthenticationFilter>();
-            });
+            builder.Services.AddSignalR(options => options.AddFilter<ChatHubAuthenticationFilter>());
 
-            builder.Services.Configure<ImageStorageOptions>(builder.Configuration.GetSection(ImageStorageOptions.IMAGE_STORAGE_KEY));
+            builder.Services.Configure<ImageStorageOptions>(
+                builder.Configuration.GetSection(ImageStorageOptions.IMAGE_STORAGE_KEY));
 
             builder.Services.AddControllers();
             builder.Services.AddSingleton<IUserIdProvider, ChatHubUserIdProvider>();

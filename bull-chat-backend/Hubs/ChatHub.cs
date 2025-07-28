@@ -1,7 +1,6 @@
 ﻿using bull_chat_backend.Hubs.Fitler;
 using bull_chat_backend.Models.DBase;
 using bull_chat_backend.Repository.RepositoryInterfaces;
-using bull_chat_backend.Services;
 using bull_chat_backend.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
