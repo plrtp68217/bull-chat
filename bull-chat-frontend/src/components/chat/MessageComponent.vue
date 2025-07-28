@@ -8,13 +8,22 @@
   </div>
 
   <div :class="['message-bubble', message.user.id == userStore.getUserId ? 'me' : 'not_me']">
+
     <div class="message-author">
       {{ message.user.name }}
     </div>
 
-    <div class="message-content">
+    <div 
+      v-if="message.content.contentType == CONTENT_TYPE.TEXT"
+      class="message-content">
       {{ message.content.item }}
     </div>
+
+    <img 
+      v-else-if="message.content.contentType == CONTENT_TYPE.IMAGE"
+      :src="baseURL + message.content.item "
+      class="message-content"
+    >
 
     <div class="message-time">
       {{ formateDateToTime(message.date) }}
@@ -31,13 +40,27 @@ import { useUserStore } from '../../stores/user';
 
 const userStore = useUserStore();
 
+const baseURL = import.meta.env.VITE_BASE_URL;
+
+interface IContentType {
+  UNKNOWN: number,
+  TEXT: number,
+  IMAGE: number
+}
+
+const CONTENT_TYPE: IContentType = {
+  UNKNOWN: 0,
+  TEXT: 1,
+  IMAGE: 2,
+}
+
 defineProps({
   message: {
     type: Object as PropType<IMessage>,
     required: true
   },
   previousMessage: {
-    type: Object as PropType<IMessage | null>,
+    type: Object as PropType<IMessage>,
     required: true
   }
 });
@@ -106,6 +129,7 @@ function datesIsNotEquals(date1: Date, date2: Date) {
 }
 
 .message-content {
+  max-width: 600px;
   margin-bottom: 4px;
 }
 
