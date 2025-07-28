@@ -60,7 +60,7 @@ defineProps({
     required: true
   },
   previousMessage: {
-    type: Object as PropType<IMessage>,
+    type: Object as PropType<IMessage | null>,
     required: true
   }
 });
@@ -129,6 +129,7 @@ function datesIsNotEquals(date1: Date, date2: Date) {
 }
 
 .message-author {
+  font-size: 1.1rem;
   font-weight: 600;
 }
 
