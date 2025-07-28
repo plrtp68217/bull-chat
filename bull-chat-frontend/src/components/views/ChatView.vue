@@ -292,6 +292,6 @@ onUnmounted(async () => {
   padding: 12px;
   display: flex;
   gap: 8px;
-  /* flex-shrink: 0; */
+  flex-shrink: 0;
 }
 </style>

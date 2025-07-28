@@ -116,6 +116,12 @@ function datesIsNotEquals(date1: Date, date2: Date) {
   color: white;
 }
 
+@media (max-width: 768px) {
+  .message-bubble {
+    max-width: 90%
+  }
+}
+
 .message-bubble.me {
   align-self: flex-end;
   background-color: #188fff80;
