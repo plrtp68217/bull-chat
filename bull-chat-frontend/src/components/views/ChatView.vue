@@ -53,7 +53,7 @@
 
     </div>
 
-    <div class="chat-container">
+    <div class="chat-main">
 
       <div class="messages-container"
         ref="messagesContainer">
@@ -69,21 +69,41 @@
           :previousMessage="index > 0 ? messagesStore.messages[index - 1] : null" />
       </div>
 
-      <div class="scroll-to-bottom">
+    </div>
+
+    <div class="chat-footer">
+      
+      <div class="upload-area">
+        
+        <n-upload 
+          :custom-request="sendImage"
+          :show-file-list="false"
+        >
+          <n-button>
+            <template #icon>
+            <UploadIcon />
+            </template>
+          </n-button>
+
+        </n-upload>
 
       </div>
-
+      
       <div class="input-area">
-        <n-input v-model:value="newContent"
+
+        <n-input 
+          v-model:value="newContent"
           type="textarea"
           placeholder="Введите сообщение..."
           :autosize="{ minRows: 2, maxRows: 5 }"
           @keyup.enter.prevent="sendMessage" />
+
         <n-button type="primary"
           @click="sendMessage"
           :disabled="!newContent.trim()">
           Отправить
         </n-button>
+
       </div>
 
     </div>
@@ -95,8 +115,9 @@
 <script setup lang="ts">
 import router from '../../../router/router.ts';
 import { ref, onMounted, nextTick, onUnmounted, watch } from 'vue';
-import { NInput, NButton, useMessage } from 'naive-ui';
-import { LogInOutline as LogInIcon, People, Ellipse } from '@vicons/ionicons5';
+import { NInput, NButton, NUpload, useMessage } from 'naive-ui';
+import type { UploadCustomRequestOptions } from 'naive-ui';
+import { LogInOutline as LogInIcon, CloudUploadOutline as UploadIcon, People, Ellipse} from '@vicons/ionicons5';
 
 import type { MessageApi } from 'naive-ui';
 
@@ -134,11 +155,27 @@ const isMessagesContainerAtBottom = ref<boolean>(true)
 
 const { start, stop, invoke } = useChatHub();
 
-const sendMessage = () => {
+function sendMessage() {
   if (!newContent.value.trim()) return;
 
   invoke.SendMessage(newContent.value);
   newContent.value = '';
+}
+
+async function sendImage({ file }: UploadCustomRequestOptions) {
+  try {
+    if (!file.file || !(file.file instanceof File)) {
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', file.file);
+  
+    await api.messages.uploadImage(formData);
+  }
+  catch (error) {
+    flash.error(`${error}`)
+  }
 }
 
 async function logOut() {
@@ -264,7 +301,7 @@ onUnmounted(async () => {
   justify-content: flex-end;
 }
 
-.chat-container {
+.chat-main {
   width: 100%;
   height: 100%;
   display: flex;
@@ -288,10 +325,16 @@ onUnmounted(async () => {
   align-self: center;
 }
 
-.input-area {
-  padding: 12px;
+.chat-footer {
+  width: 100%;
   display: flex;
-  gap: 8px;
-  flex-shrink: 0;
+  gap: 4px;
+  margin-top: 5px;
+}
+
+.input-area {
+  display: flex;
+  gap: 4px;
+  flex-grow: 1;
 }
 </style>
