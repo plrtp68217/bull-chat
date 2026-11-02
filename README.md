@@ -1,4 +1,4 @@
-﻿# Bull Chat 🐂🐂
+﻿# Bull Chat 🐂
 
 ![.NET](https://img.shields.io/badge/ASP.NET_Core_9-512BD4?logo=dotnet&logoColor=white)
 ![SignalR](https://img.shields.io/badge/SignalR-512BD4?logo=dotnet&logoColor=white)
